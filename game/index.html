@@ -1,4 +1,11 @@
-<meta name="claude:viewport-fit-sides" content="cover">
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+</head>
+<body>
 <title>Ямальская тундра</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Sofia+Sans+Extra+Condensed:wght@700;800&display=swap">
 <style>
@@ -191,7 +198,11 @@ p{margin:0}
   #mobnav button{flex:1;border:1px solid var(--line);background:transparent;border-radius:2px;padding:.55rem .2rem;font-size:.8rem}
   #mobnav button[aria-pressed="true"]{border-color:var(--amber);color:var(--amber)}
   .brand{display:none}
-  .season{min-width:7.4rem}
+  #camp.open~#log,#side.open~#log{display:none}
+  #top{flex-wrap:wrap;gap:.35rem}
+  .season{min-width:0;flex:1 1 100%;order:1;flex-direction:row;align-items:baseline;gap:.6rem;padding:.35rem .6rem}
+  .stocks{flex:1 1 100%;order:2;min-width:0;overflow-x:auto}
+  .speed{flex:1 1 100%;order:3;min-width:0;justify-content:space-between;flex-wrap:wrap}
   #card{bottom:calc(3.6rem + env(safe-area-inset-bottom,0px))}
 }
 </style>
@@ -1646,3 +1657,5 @@ sources:[
 })();
 
 </script>
+</body>
+</html>

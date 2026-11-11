@@ -555,6 +555,9 @@ h2{font-size:clamp(1.9rem,4vw,3.3rem);line-height:1.12}
 [dir="rtl"] .tag-float{border-right:0}
 .tag-float::after{left:calc(50% - 5px);background:var(--ivory)}
 
+html,body{max-width:100%;overflow-x:clip}
+.nav{overflow:hidden}
+@media (max-width:560px){.nav .btn{display:none}.lang{margin-left:auto}[dir="rtl"] .lang{margin-left:0;margin-right:auto}}
 .sub-m{display:none}
 .lang button{white-space:nowrap}
 @media (max-width:380px){.mark{font-size:.9rem;letter-spacing:.14em}.lang button{padding:.35rem .45rem}}
