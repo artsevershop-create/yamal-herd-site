@@ -9,17 +9,18 @@
 <title>Ямальская тундра</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Sofia+Sans+Extra+Condensed:wght@700;800&display=swap">
 <style>
-/* Layout: full-screen 3D tundra; a dusk-blue field-journal HUD around it — top strip of season and stocks, camp panel left, families right, minimap and log at the bottom. One deliberate dark look. */
+/* Layout: full-screen 3D tundra. One slim top bar (month, herd, three buttons) and one task card with one big button — bottom-left on desktop, a bottom sheet on phones. Dictionary, "my deer" and the map open on demand. One deliberate dark look. */
 :root{
-  --night:#0F2231; --panel:rgba(16,34,48,.9); --panel-solid:#132A3B; --line:#2F4D63;
+  --night:#0F2231; --panel:rgba(16,34,48,.92); --panel-solid:#132A3B; --line:#2F4D63;
   --text:#EAF2F7; --text-2:#A9BFCE; --amber:#E2A332; --on-amber:#1A1408; --cloth:#D9493E; --lichen:#A9C29A; --ice:#BFD7E6;
   --display:"Sofia Sans Extra Condensed","Arial Narrow",sans-serif;
   --body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --sl:env(safe-area-inset-left,0px); --sr:env(safe-area-inset-right,0px); --st:env(safe-area-inset-top,0px); --sb:env(safe-area-inset-bottom,0px);
   color-scheme:dark;
 }
 [hidden]{display:none!important}
-html,body{height:100%}
+html,body{height:100%;margin:0}
 body{background:var(--night);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.45;overflow:hidden}
 *{box-sizing:border-box}
 button,input,select{font:inherit;color:inherit}
@@ -34,123 +35,60 @@ h2{font-family:var(--display);font-weight:800;font-size:1.6rem;text-transform:up
 h3{font-size:.95rem;font-weight:600}
 p{margin:0}
 
-/* top strip */
-#top{top:env(safe-area-inset-top,0px);left:0;right:0;display:flex;gap:.5rem;align-items:stretch;padding:.5rem max(.6rem,env(safe-area-inset-right,0px)) 0 max(.6rem,env(safe-area-inset-left,0px));pointer-events:none}
+/* top bar */
+#top{top:var(--st);left:0;right:0;display:flex;gap:.4rem;align-items:stretch;padding:.5rem max(.6rem,var(--sr)) 0 max(.6rem,var(--sl));pointer-events:none}
 #top>*{pointer-events:auto}
-.brand{display:flex;flex-direction:column;justify-content:center;padding:.35rem .7rem;min-width:0}
+.brand{display:flex;flex-direction:column;justify-content:center;padding:.3rem .7rem;min-width:0}
 .brand b{font-family:var(--display);font-weight:800;font-size:1.25rem;text-transform:uppercase;letter-spacing:.04em;line-height:1}
 .brand span{color:var(--amber)}
-.season{display:flex;flex-direction:column;justify-content:center;padding:.35rem .8rem;min-width:9.5rem}
-.season .m{font-family:var(--display);font-weight:800;font-size:1.35rem;text-transform:uppercase;line-height:1}
-.season .s{color:var(--text-2);font-size:.78rem}
-.stocks{display:flex;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
-.stock{display:flex;flex-direction:column;justify-content:center;padding:.3rem .75rem;border-right:1px solid var(--line);white-space:nowrap}
-.stock:last-child{border-right:0}
-.stock .v{font-family:var(--mono);font-size:1rem;font-variant-numeric:tabular-nums}
-.stock .k{color:var(--text-2);font-size:.68rem;font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase}
-.stock.warn .v{color:var(--cloth)}
-.bar{height:4px;background:#24394a;margin-top:.2rem;width:4.2rem}
-.bar i{display:block;height:100%;background:var(--lichen)}
-.stock.warn .bar i{background:var(--cloth)}
-.speed{display:flex;align-items:center;gap:2px;padding:.25rem}
-.speed button,.iconbtn{border:0;background:transparent;padding:.4rem .55rem;border-radius:2px;cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--text-2)}
-.speed button[aria-pressed="true"]{background:var(--text);color:var(--night)}
-.iconbtn:hover,.speed button:hover{color:var(--text)}
+.season{display:flex;flex-direction:column;justify-content:center;gap:.1rem;padding:.3rem .7rem;min-width:0}
+.season .m{font-family:var(--display);font-weight:800;font-size:1.35rem;text-transform:uppercase;line-height:1;white-space:nowrap}
+.season .s{color:var(--text-2);font-family:var(--mono);font-size:.68rem;letter-spacing:.04em;white-space:nowrap}
+.season .s b{color:var(--text);font-weight:500;font-variant-numeric:tabular-nums}
+.topbtns{display:flex;margin-left:auto}
+.topbtns button{border:0;border-right:1px solid var(--line);background:transparent;min-height:44px;padding:0 .85rem;cursor:pointer;font-size:.88rem;white-space:nowrap}
+.topbtns button:last-child{border-right:0}
+.topbtns button:hover,.topbtns button[aria-pressed="true"]{color:var(--amber)}
 
-/* camp panel */
-#camp{left:max(.6rem,env(safe-area-inset-left,0px));top:calc(4.6rem + env(safe-area-inset-top,0px));width:19rem;max-height:calc(100% - 15rem);overflow:auto;padding:.85rem;display:flex;flex-direction:column;gap:.75rem}
-.fam-head{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem}
-.fam-head .mono{color:var(--amber)}
-.jobs{display:flex;flex-direction:column;gap:.35rem}
-.job{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:.4rem;align-items:center;font-size:.9rem}
-.job small{display:block;color:var(--text-2);font-size:.74rem;line-height:1.3}
-.job b{font-family:var(--mono);font-weight:500;min-width:1.2rem;text-align:center;font-variant-numeric:tabular-nums}
-.job button{width:1.9rem;height:1.9rem;border:1px solid var(--line);background:transparent;border-radius:2px;cursor:pointer}
-.job button:hover{border-color:var(--text-2)}
-.free{font-size:.78rem;color:var(--text-2)}
-.saveinfo{font-size:.74rem;color:var(--text-2)}
-.saveinfo .linkbtn{font-size:.74rem;color:var(--text-2)}
-.acts{display:flex;flex-direction:column;gap:.45rem}
-.btn{border:0;border-radius:2px;padding:.65rem .9rem;background:var(--cloth);color:#fff;font-weight:600;cursor:pointer;text-align:left}
+/* buttons */
+.btn{border:0;border-radius:2px;min-height:44px;padding:.6rem .9rem;background:var(--cloth);color:#fff;font-weight:600;cursor:pointer;text-align:left}
 .btn:hover{filter:brightness(1.08)}
-.btn[disabled]{opacity:.45;cursor:default;filter:none}
+.btn[disabled]{background:transparent;box-shadow:inset 0 0 0 1px var(--line);color:var(--text-2);cursor:default;filter:none}
 .btn.q{background:transparent;box-shadow:inset 0 0 0 1px var(--line);color:var(--text)}
-.btn.q[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--amber)}
-.next{font-size:.82rem;color:var(--text-2)}
-.next b{color:var(--text);font-weight:500}
-.advice{border-left:3px solid var(--amber);padding:.45rem .65rem;background:rgba(226,163,50,.08);font-size:.86rem}
-.advice .mono{color:var(--amber);display:block;margin-bottom:.2rem}
-.term{border-bottom:1px dotted var(--amber);cursor:help}
-
-/* side panel */
-#side{right:max(.6rem,env(safe-area-inset-right,0px));top:calc(4.6rem + env(safe-area-inset-top,0px));width:19rem;max-height:calc(100% - 22rem);display:flex;flex-direction:column}
-.tabs{display:flex;border-bottom:1px solid var(--line)}
-.tabs button{flex:1;border:0;background:transparent;padding:.6rem .3rem;cursor:pointer;font-size:.82rem;color:var(--text-2);border-bottom:2px solid transparent}
-.tabs button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--amber)}
-.tabbody{overflow:auto;padding:.75rem;display:flex;flex-direction:column;gap:.6rem}
-.famrow{display:grid;grid-template-columns:.7rem minmax(0,1fr) auto;gap:.55rem;align-items:center;padding:.45rem 0;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;text-align:left;width:100%}
-.famrow i{width:.7rem;height:.7rem;border-radius:50%}
-.famrow small{display:block;color:var(--text-2);font-size:.75rem}
-.famrow .n{font-family:var(--mono);font-size:.8rem;color:var(--text-2);font-variant-numeric:tabular-nums}
-.deerrow{display:grid;grid-template-columns:3.3rem minmax(0,1fr) auto;gap:.5rem;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--line)}
-.deerrow .tg{font-family:var(--mono);font-size:.74rem;background:var(--amber);color:var(--on-amber);padding:.12rem .3rem;text-align:center}
-.deerrow.mine .tg{background:var(--cloth);color:#fff}
-.deerrow small{display:block;color:var(--text-2);font-size:.74rem}
+.btn.big{min-height:52px;font-size:1.05rem;text-align:center;width:100%}
 .linkbtn{border:0;background:none;color:var(--amber);cursor:pointer;padding:.2rem;font-size:.82rem;text-decoration:underline;text-underline-offset:3px}
-.sample{font-size:.74rem;color:var(--text-2)}
-.f{display:flex;flex-direction:column;gap:.25rem}
-.f label{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2)}
-.f input,.f select{background:#0c1c28;border:1px solid var(--line);border-radius:2px;padding:.55rem .6rem;width:100%}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.linkbtn.sm{font-size:.72rem;color:var(--text-2);padding:14px 6px;margin:-14px -6px;white-space:nowrap}
+.x{border:0;background:transparent;color:var(--text-2);cursor:pointer;font-size:1.1rem;min-width:44px;min-height:44px;margin:-.6rem -.7rem -.6rem 0;flex:none}
+.x:hover{color:var(--text)}
+.sample{font-size:.76rem;color:var(--text-2)}
+.err{color:#F0A9A2}
+.err:empty{display:none}
 
-/* quests */
-.qnow{display:block;width:100%;text-align:left;border:1px solid var(--amber);background:rgba(226,163,50,.1);border-radius:2px;padding:.45rem .6rem;cursor:pointer;font-size:.86rem;color:var(--text)}
-.qnow .mono{display:block;color:var(--amber);margin-bottom:.1rem}
-.qnow:hover{background:rgba(226,163,50,.18)}
-.qscore{font-size:.86rem;color:var(--text-2)}
-.qscore b{font-family:var(--display);font-size:1.6rem;color:var(--amber);font-weight:800;margin-right:.2rem}
-#tb-q h3{margin-top:.3rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);font-weight:500}
-.qi{border-left:3px solid var(--amber);padding:.45rem .6rem;background:rgba(255,255,255,.03);display:flex;flex-direction:column;gap:.3rem}
-.qi.later{border-left-color:var(--line);opacity:.8}
-.qi.done{border-left-color:var(--lichen)}
-.qh{display:flex;justify-content:space-between;gap:.5rem;align-items:baseline}
-.qh b{font-weight:600;font-size:.9rem}
-.qh .mono{color:var(--text-2);white-space:nowrap}
-.qi p{font-size:.82rem;color:var(--text-2)}
-.qi .qf{color:var(--text)}
-.qm{font-family:var(--mono);font-size:.66rem!important;letter-spacing:.03em}
-.qbar{height:4px;background:#24394a}
-.qbar i{display:block;height:100%;background:var(--amber)}
-.qdone summary{cursor:pointer;font-size:.86rem;color:var(--text-2);padding:.3rem 0}
-.qdone .qi{margin-top:.4rem}
+/* task card: the one thing to do next */
+#task{left:max(.6rem,var(--sl));bottom:calc(.6rem + var(--sb));width:min(28rem,calc(100% - 1.2rem));max-height:calc(100% - 5.5rem);padding:1rem;display:flex;flex-direction:column;gap:.55rem}
+.t-prog{position:absolute;left:0;right:0;top:0;height:3px;background:#24394a}
+.t-prog i{display:block;height:100%;background:var(--amber);transition:width .4s ease}
+@media (prefers-reduced-motion: reduce){.t-prog i{transition:none}}
+.t-head{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+.t-head .mono{color:var(--amber)}
+#task.done .t-head .mono{color:var(--lichen)}
+#task h2{font-size:1.75rem}
+.t-body{overflow:auto;min-height:0;display:flex;flex-direction:column;gap:.5rem;font-size:.98rem;padding-bottom:.35rem}
+.t-acts{display:flex;flex-direction:column;gap:.45rem;flex:none}
+.fact{border-left:3px solid var(--amber);padding:.4rem .65rem;background:rgba(226,163,50,.08);font-size:.9rem}
+.fact .mono{color:var(--amber);display:block;margin-bottom:.15rem;font-size:.66rem}
+.term{display:inline;border:0;border-bottom:1px dotted var(--amber);background:none;padding:0;margin:0;font:inherit;color:inherit;cursor:help;text-align:inherit}
+.term:hover{color:var(--amber)}
+.term{position:relative}
+.term::after{content:"";position:absolute;inset:-.35rem -.25rem} /* a larger tap area without moving the text */
 
-/* help and tour */
-.iconbtn.help{color:var(--amber)}
-#tour-hole{position:fixed;z-index:30;border-radius:4px;box-shadow:0 0 0 9999px rgba(6,14,20,.62);outline:2px solid var(--amber);pointer-events:none;transition:left .25s ease,top .25s ease,width .25s ease,height .25s ease}
-@media (prefers-reduced-motion: reduce){#tour-hole{transition:none}}
-#tour-card{position:fixed;z-index:31;width:min(22rem,calc(100% - 24px));padding:1rem;display:flex;flex-direction:column;gap:.5rem;background:var(--panel-solid)}
-#tour-card .mono{color:var(--amber)}
-#tour-card h3{font-family:var(--display);font-weight:800;font-size:1.4rem;text-transform:uppercase;line-height:1}
-#tour-card p{font-size:.92rem}
-.tour-acts{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-top:.3rem}
-.tour-acts span{display:flex;gap:.4rem}
-.guide{display:flex;flex-direction:column;gap:.45rem}
-.guide h3{font-family:var(--display);font-weight:800;font-size:1.25rem;text-transform:uppercase;color:var(--amber);margin-top:.5rem}
-.guide p,.guide li{font-size:.92rem}
-.guide ul,.guide ol{padding-left:1.2rem;margin:0;display:flex;flex-direction:column;gap:.3rem}
-
-/* bottom */
-#log{left:max(.6rem,env(safe-area-inset-left,0px));bottom:calc(.6rem + env(safe-area-inset-bottom,0px));width:min(30rem,calc(100% - 15rem));max-height:8.6rem;overflow:hidden;display:flex;flex-direction:column-reverse;gap:.25rem;pointer-events:none}
-.msg{background:var(--panel);border-left:3px solid var(--text-2);padding:.35rem .6rem;font-size:.84rem;animation:in .3s ease}
-.msg.bad{border-left-color:var(--cloth)}.msg.good{border-left-color:var(--lichen)}.msg.info{border-left-color:var(--amber)}
-.msg .d{font-family:var(--mono);font-size:.66rem;color:var(--text-2);margin-right:.4rem}
-@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion: reduce){.msg{animation:none}}
-#mini{right:max(.6rem,env(safe-area-inset-right,0px));bottom:calc(.6rem + env(safe-area-inset-bottom,0px));padding:.4rem;display:flex;flex-direction:column;gap:.3rem}
-#mini canvas{display:block;width:11.5rem;height:auto;cursor:crosshair}
-.minibar{display:flex;justify-content:space-between;align-items:center;gap:.3rem}
-.minibar button{border:1px solid var(--line);background:transparent;border-radius:2px;padding:.2rem .45rem;font-size:.72rem;cursor:pointer;color:var(--text-2)}
-.minibar button[aria-pressed="true"]{color:var(--text);border-color:var(--lichen)}
+/* dictionary popover for a tapped term */
+#pop{position:fixed;z-index:30;width:min(20rem,calc(100% - 16px));padding:.7rem .8rem;background:var(--panel-solid);display:flex;flex-direction:column;gap:.3rem;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+#pop .hd{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+#pop b{color:var(--amber);font-weight:600}
+#pop p{font-size:.9rem}
+#pop small{color:var(--text-2)}
+#pop .linkbtn{align-self:flex-start;min-height:44px;padding:.2rem 0}
 
 /* labels on the map */
 #labels{position:fixed;inset:0;pointer-events:none;z-index:3;overflow:hidden}
@@ -162,48 +100,88 @@ p{margin:0}
 .lbl.deer{background:var(--amber);color:var(--on-amber);text-shadow:none;padding:.05rem .3rem;font-size:.64rem}
 .lbl.deer.mine{background:var(--cloth);color:#fff;font-size:.72rem;padding:.1rem .4rem}
 
-/* deer card, dialogs */
-#card{left:50%;bottom:calc(.8rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(24rem,calc(100% - 1.2rem));padding:.9rem;display:flex;flex-direction:column;gap:.5rem}
-#card .hd{display:flex;justify-content:space-between;gap:.5rem;align-items:baseline}
+/* map (opens with the «Карта» button) */
+#mini{right:max(.6rem,var(--sr));top:calc(4.1rem + var(--st));padding:.5rem;display:flex;flex-direction:column;gap:.45rem;max-height:calc(100% - 5rem);overflow:auto}
+#mini canvas{display:block;width:11.5rem;height:auto;cursor:crosshair;align-self:center}
+.famchips{display:grid;grid-template-columns:1fr 1fr;gap:.3rem}
+.famchips button{display:flex;align-items:center;gap:.4rem;min-height:44px;border:1px solid var(--line);background:transparent;border-radius:2px;padding:0 .5rem;cursor:pointer;font-size:.84rem;text-align:left}
+.famchips button:hover{border-color:var(--text-2)}
+.famchips i{width:.7rem;height:.7rem;border-radius:50%;flex:none}
+#mini .sample{max-width:11.5rem}
+
+/* deer card */
+#card{right:max(.6rem,var(--sr));bottom:calc(.6rem + var(--sb));width:min(22rem,calc(100% - 1.2rem));padding:.9rem;display:flex;flex-direction:column;gap:.5rem}
+#card .hd{display:flex;justify-content:space-between;gap:.5rem;align-items:center}
 #card .nm{font-family:var(--display);font-weight:800;font-size:1.7rem;text-transform:uppercase;line-height:1}
-#card dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:.2rem .8rem;font-size:.86rem}
+#card dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:.2rem .8rem;font-size:.86rem;overflow:auto;min-height:0}
 #card dt{color:var(--text-2)}
 #card dd{margin:0}
-.x{border:0;background:transparent;color:var(--text-2);cursor:pointer;font-size:1.1rem;padding:.2rem .4rem}
-.modal{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-left,0px));background:rgba(6,14,20,.55)}
-.dlg{background:var(--panel-solid);border:1px solid var(--line);width:min(40rem,100%);max-height:calc(100% - 2rem);overflow:auto;padding:1.4rem;display:flex;flex-direction:column;gap:.9rem}
-.dlg h1{font-family:var(--display);font-weight:800;font-size:clamp(2.2rem,6vw,3.4rem);text-transform:uppercase;line-height:.92;margin:0}
-.dlg .lead{color:var(--text-2)}
+.acts{display:flex;flex-direction:column;gap:.45rem}
+.acts.row{flex-direction:row;flex-wrap:wrap}
+#card .acts{flex:none}
+.only-phone{display:none}
+
+/* dialogs */
+.modal{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:max(12px,var(--st)) max(12px,var(--sr)) max(12px,var(--sb)) max(12px,var(--sl));background:rgba(6,14,20,.55)}
+.dlg{background:var(--panel-solid);border:1px solid var(--line);width:min(34rem,100%);max-height:100%;overflow:auto;padding:1.4rem;display:flex;flex-direction:column;gap:.9rem}
+.dlg h1{font-family:var(--display);font-weight:800;font-size:clamp(2.4rem,9vw,3.4rem);text-transform:uppercase;line-height:.92;margin:0}
+.dlg .lead{font-size:1.02rem}
 .dlg ul{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:.3rem;font-size:.92rem}
-.dlg .acts{flex-direction:row;flex-wrap:wrap}
+.dlg-head{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+.stat{border:1px solid var(--line);padding:.5rem .6rem;display:flex;flex-direction:column;gap:.15rem}
+.stat b{font-family:var(--display);font-weight:800;font-size:2rem;line-height:1;color:var(--amber);font-variant-numeric:tabular-nums}
+.stat span{font-family:var(--mono);font-size:.64rem;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2)}
+.f{display:flex;flex-direction:column;gap:.25rem}
+.f label{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2)}
+.f input,.f select{background:#0c1c28;border:1px solid var(--line);border-radius:2px;padding:.5rem .6rem;width:100%;min-height:44px;font-size:16px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+#my-body{display:flex;flex-direction:column;gap:.75rem}
+#my-body details{border-top:1px solid var(--line);padding-top:.4rem}
+#my-body summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--amber);text-decoration:underline;text-underline-offset:3px;list-style:none}
+#my-body summary::-webkit-details-marker{display:none}
+#my-body details>div{display:flex;flex-direction:column;gap:.75rem;padding-top:.3rem}
 .gl{display:grid;grid-template-columns:minmax(7rem,auto) minmax(0,1fr);gap:.35rem 1rem;font-size:.9rem}
 .gl dt{font-weight:600;color:var(--amber)}
 .gl dd{margin:0;color:var(--text)}
 .gl dd small{color:var(--text-2)}
+#g-body{display:flex;flex-direction:column;gap:.6rem}
+#g-body h3{margin-top:.5rem;font-family:var(--display);font-weight:800;font-size:1.25rem;text-transform:uppercase;color:var(--amber)}
 .cal{width:100%;border-collapse:collapse;font-size:.84rem}
 .cal td,.cal th{border-bottom:1px solid var(--line);padding:.35rem .4rem;text-align:left;vertical-align:top}
 .cal th{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);font-weight:500}
 .cal tr.now td{background:rgba(226,163,50,.12)}
-.src{font-size:.78rem;color:var(--text-2)}
-.src a{color:var(--ice)}
+.src{font-size:.78rem;color:var(--text-2);padding-left:1.2rem;margin:0;overflow-wrap:anywhere}
+.src a{color:var(--ice);display:flex;align-items:center;min-height:44px}
 
-/* mobile */
-#mobnav{display:none}
+/* phones: top bar on one row, the task card becomes a bottom sheet */
 @media (max-width:760px){
-  #camp,#side{top:auto;bottom:calc(3.4rem + env(safe-area-inset-bottom,0px));left:max(.5rem,env(safe-area-inset-left,0px));right:max(.5rem,env(safe-area-inset-right,0px));width:auto;max-height:52%}
-  #camp:not(.open),#side:not(.open){display:none}
-  #log{bottom:calc(3.6rem + env(safe-area-inset-bottom,0px));width:calc(100% - 1rem);max-height:4.4rem}
-  #mini{display:none}#mini.open{display:flex;bottom:calc(3.4rem + env(safe-area-inset-bottom,0px))}
-  #mobnav{display:flex;left:0;right:0;bottom:0;padding:.35rem max(.5rem,env(safe-area-inset-right,0px)) calc(.35rem + env(safe-area-inset-bottom,0px)) max(.5rem,env(safe-area-inset-left,0px));gap:.35rem;background:var(--panel-solid);border-top:1px solid var(--line)}
-  #mobnav button{flex:1;border:1px solid var(--line);background:transparent;border-radius:2px;padding:.55rem .2rem;font-size:.8rem}
-  #mobnav button[aria-pressed="true"]{border-color:var(--amber);color:var(--amber)}
-  .brand{display:none}
-  #camp.open~#log,#side.open~#log{display:none}
-  #top{flex-wrap:wrap;gap:.35rem}
-  .season{min-width:0;flex:1 1 100%;order:1;flex-direction:row;align-items:baseline;gap:.6rem;padding:.35rem .6rem}
-  .stocks{flex:1 1 100%;order:2;min-width:0;overflow-x:auto}
-  .speed{flex:1 1 100%;order:3;min-width:0;justify-content:space-between;flex-wrap:wrap}
-  #card{bottom:calc(3.6rem + env(safe-area-inset-bottom,0px))}
+  .brand,.wide{display:none}
+  #top{gap:.3rem;padding-left:max(.5rem,var(--sl));padding-right:max(.5rem,var(--sr))}
+  .season{padding:.3rem .55rem}
+  .season .m{font-size:1.25rem}
+  .topbtns button{padding:0 .6rem;font-size:.84rem}
+  #task{left:0;right:0;bottom:0;width:auto;max-height:45%;border-width:1px 0 0;padding:.9rem max(.9rem,var(--sr)) calc(.9rem + var(--sb)) max(.9rem,var(--sl));gap:.5rem;background:var(--panel-solid)}
+  @supports (height:1dvh){#task{max-height:45dvh}}
+  #task h2{font-size:1.6rem}
+  /* the deer card takes the place of the task sheet until it is closed */
+  #card{z-index:6;left:0;right:0;bottom:0;width:auto;max-height:45%;border-width:1px 0 0;padding:.9rem max(.9rem,var(--sr)) calc(.9rem + var(--sb)) max(.9rem,var(--sl));background:var(--panel-solid)}
+  @supports (height:1dvh){#card{max-height:45dvh}}
+  #card:not([hidden])~#task{visibility:hidden}
+  .only-phone{display:block}
+  #mini{right:max(.5rem,var(--sr));top:calc(4rem + var(--st));max-height:calc(55% - 4.4rem);background:var(--panel-solid)}
+  #mini canvas{width:9.5rem}
+  #mini .sample{display:none}
+  .dlg{padding:1.1rem}
+  .gl{grid-template-columns:minmax(5.5rem,auto) minmax(0,1fr);gap:.35rem .7rem}
+}
+/* low phones: the result card drops its title so the fact fits above the button */
+@media (max-width:760px) and (max-height:700px){
+  #task.done h2{display:none}
+}
+@media (max-width:379px){
+  .topbtns button{padding:0 .45rem;font-size:.8rem}
+  .season{padding:.3rem .45rem}
 }
 </style>
 
@@ -212,84 +190,85 @@ p{margin:0}
 
 <header id="top" class="hud">
   <div class="brand pnl"><b>Yamal <span>Herd</span></b><span class="mono" style="color:var(--text-2)">тундра · образец</span></div>
-  <div class="season pnl"><span class="m" id="t-month">Апрель</span><span class="s" id="t-season">Год 1 · весенняя кочёвка</span></div>
-  <div class="stocks pnl" id="stocks"></div>
-  <div class="speed pnl" role="group" aria-label="Скорость времени">
-    <button type="button" id="sp0" data-sp="0" aria-pressed="false" title="Пауза (пробел)">❚❚</button>
-    <button type="button" id="sp1" data-sp="1" aria-pressed="true">1×</button>
-    <button type="button" id="sp3" data-sp="3" aria-pressed="false">3×</button>
-    <button type="button" id="sp8" data-sp="8" aria-pressed="false">8×</button>
-    <button type="button" class="iconbtn" id="b-gloss" title="Словарь и календарь каслания">Словарь</button>
-    <button type="button" class="iconbtn help" id="b-help" title="Инструкция и обучение">Как играть</button>
-  </div>
+  <div class="season pnl"><span class="m" id="t-month">Март</span><span class="s">стадо <b id="t-herd">220</b><span class="wide" id="t-season"></span></span></div>
+  <nav class="topbtns pnl" aria-label="Словарь, мой олень, карта">
+    <button type="button" id="b-gloss" title="Словарь тундры и календарь каслания">Словарь</button>
+    <button type="button" id="b-my" title="Найти своего оленя по номеру бирки">Мой олень</button>
+    <button type="button" id="b-map" aria-pressed="false" title="Карта Ямала">Карта</button>
+  </nav>
 </header>
 
-<aside id="camp" class="hud pnl" aria-label="Стойбище">
-  <div class="fam-head"><h2 id="c-fam">Семья Худи</h2><span class="mono" id="c-herd">Ярсалинская тундра</span></div>
-  <button type="button" class="qnow" id="qnow" title="Открыть задания"></button>
-  <div class="jobs" id="jobs"></div>
-  <p class="free" id="free"></p>
-  <div class="acts">
-    <button type="button" class="btn" id="a-next">Каслать к следующей стоянке</button>
-    <button type="button" class="btn q" id="a-pick" aria-pressed="false">Выбрать место на карте</button>
-    <button type="button" class="btn q" id="a-find">Показать стойбище</button>
-  </div>
-  <p class="next" id="next"></p>
-  <div class="advice" id="advice"></div>
-  <p class="saveinfo"><span id="saveinfo-t">Прогресс сохраняется в этом браузере раз в игровой месяц.</span> <button type="button" class="linkbtn" id="b-reset">Начать заново</button></p>
-</aside>
-
-<aside id="side" class="hud pnl" aria-label="Семьи и олени">
-  <div class="tabs" role="tablist">
-    <button type="button" role="tab" id="tab-q" aria-selected="true" data-tab="q">Задания</button>
-    <button type="button" role="tab" id="tab-fam" aria-selected="false" data-tab="fam">Семьи</button>
-    <button type="button" role="tab" id="tab-ad" aria-selected="false" data-tab="ad">Опекаемые</button>
-    <button type="button" role="tab" id="tab-my" aria-selected="false" data-tab="my">Мой олень</button>
-  </div>
-  <div class="tabbody" id="tb-q"></div>
-  <div class="tabbody" id="tb-fam" hidden></div>
-  <div class="tabbody" id="tb-ad" hidden></div>
-  <div class="tabbody" id="tb-my" hidden></div>
-</aside>
-
-<div id="log" class="hud" aria-live="polite"></div>
-<div id="mini" class="hud pnl">
-  <canvas id="minimap" width="230" height="356" aria-label="Мини-карта: нажмите, чтобы перейти"></canvas>
-  <div class="minibar"><span class="mono" style="color:var(--text-2)">Ямал</span><button type="button" id="m-lichen" aria-pressed="false">Ягель</button></div>
-</div>
-<nav id="mobnav" class="hud" aria-label="Панели">
-  <button type="button" id="mn-camp" data-p="camp" aria-pressed="false">Стойбище</button>
-  <button type="button" id="mn-side" data-p="side" aria-pressed="false">Семьи</button>
-  <button type="button" id="mn-mini" data-p="mini" aria-pressed="false">Карта</button>
-</nav>
 <section id="card" class="hud pnl" hidden aria-live="polite"></section>
+<section id="task" class="hud pnl" aria-label="Задание" hidden>
+  <div class="t-prog" aria-hidden="true"><i id="k-prog"></i></div>
+  <div class="t-head"><span class="mono" id="k-step"></span><button type="button" class="linkbtn sm" id="b-reset">Начать заново</button></div>
+  <h2 id="k-title"></h2>
+  <div class="t-body" id="k-text" aria-live="polite"></div>
+  <div class="t-acts" id="k-acts"></div>
+</section>
+
+<aside id="mini" class="hud pnl" aria-label="Карта Ямала" hidden>
+  <canvas id="minimap" width="230" height="356" aria-label="Карта: нажмите, чтобы перейти к месту"></canvas>
+  <div class="famchips" id="famchips"></div>
+  <p class="sample">Фамилии и районы кочёвок — по опубликованным источникам; маршруты упрощены. Размеры стад, знаки семей и опекуны — образцы.</p>
+</aside>
+<div id="pop" class="pnl" role="dialog" aria-label="Слово из словаря" hidden>
+  <div class="hd"><b id="pop-t"></b><button type="button" class="x" id="pop-x" aria-label="Закрыть">✕</button></div>
+  <p id="pop-d"></p>
+  <button type="button" class="linkbtn" id="pop-all">Весь словарь</button>
+</div>
 
 <div class="modal" id="intro">
   <div class="dlg">
     <span class="mono" style="color:var(--amber)">Yamal Herd · игра-образец</span>
     <h1>Каслание</h1>
-    <p class="lead"><b>Цель:</b> провести стадо через год каслания сытым и здоровым и вернуться к весне с большим стадом.</p>
-    <p class="lead">Год кочевья на полуострове Ямал. Вы ведёте стойбище семьи Худи из Ярсалинской тундры: зимой стадо стоит в лесу за Обью, весной по льду переходит реку у Яр-Сале и идёт на север, к Бованенково и устью Мордыяхи у Карского моря. Осенью — обратно. Карта построена по настоящей границе ЯНАО.</p>
-    <ul>
-      <li>Распределяйте людей: пастухи берегут стадо от волков, рыбаки кормят семью, кто-то заготавливает дрова и держит огонь в чуме.</li>
-      <li>Вовремя каслайте: на одном месте ягель быстро кончается, а растёт он годами.</li>
-      <li>Летом уводите стадо к морю от гнуса, осенью возвращайтесь до полярной ночи.</li>
-      <li>Задания ведут через весь год: переправа по льду, отёл, уход от гнуса к морю, кораль, дрова к полярной ночи. За каждое — награда и факт о тундре.</li>
-      <li>Опекуны с сайта находят своих оленей по номеру бирки. Можно завести и своего цифрового оленя.</li>
-    </ul>
-    <p class="sample">Фамилии и районы кочёвок семей взяты из опубликованных источников; стада, олени и опекуны — образцы. Время ускорено: месяц идёт около 40 секунд. Управление: тяните карту, колесо или щипок — масштаб, правая кнопка или два пальца — поворот. После старта покажем за минуту, где что на экране; полная инструкция — кнопка «Как играть» вверху.</p>
+    <p class="lead">Проведите стадо семьи Худи через год каслания по Ямалу: весной на север, к Карскому морю, осенью обратно — на зимние пастбища за Обью.</p>
+    <p>На экране всегда одно задание и одна кнопка. Подчёркнутые слова можно нажать: откроется объяснение из словаря тундры.</p>
+    <p class="sample">Фамилии и районы кочёвок семей взяты из опубликованных источников; стада, олени и опекуны — образцы. Карта построена по настоящей границе ЯНАО.</p>
     <div class="acts">
-      <button type="button" class="btn" id="i-start">Начать кочевье</button>
-      <button type="button" class="btn q" id="i-my">Сначала завести своего оленя</button>
-      <button type="button" class="btn q" id="i-new" hidden>Начать заново</button>
+      <button type="button" class="btn big" id="i-start">Начать</button>
+      <button type="button" class="btn q big" id="i-my">Сначала завести своего оленя</button>
+      <button type="button" class="btn q big" id="i-new" hidden>Начать заново</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="end" hidden>
+  <div class="dlg">
+    <span class="mono" style="color:var(--amber)">Yamal Herd · игра-образец</span>
+    <h1>Год позади</h1>
+    <p class="lead">Стадо семьи Худи прошло весь круг каслания и вернулось на зимние пастбища за Обью.</p>
+    <div class="stats">
+      <div class="stat"><b id="e-start">220</b><span>в стаде весной</span></div>
+      <div class="stat"><b id="e-born">0</b><span>родилось оленят</span></div>
+      <div class="stat"><b id="e-now">220</b><span>в стаде теперь</span></div>
+    </div>
+    <h3>Что вы узнали</h3>
+    <ul>
+      <li>Каслание — перекочёвка стойбища с оленями: зимой на юге, летом на севере, у Карского моря.</li>
+      <li>Весной реки переходят по льду, летом — вплавь.</li>
+      <li>От гнуса стадо уводят к морю, на ветер.</li>
+      <li>В корале телятам ставят ушные метки, а всё стадо прививают.</li>
+      <li>От гололёда стадо уводят на другое пастбище.</li>
+    </ul>
+    <div class="acts">
+      <button type="button" class="btn big" id="e-again">Пройти ещё раз</button>
+      <div class="acts row"><button type="button" class="btn q" id="e-gloss">Словарь тундры</button><button type="button" class="btn q" id="e-my">Мой олень</button></div>
     </div>
   </div>
 </div>
 
 <div class="modal" id="gloss" hidden>
   <div class="dlg" style="width:min(52rem,100%)">
-    <div class="fam-head"><h2>Словарь тундры</h2><button type="button" class="x" id="g-close" aria-label="Закрыть">✕</button></div>
+    <div class="dlg-head"><h2>Словарь тундры</h2><button type="button" class="x" id="g-close" aria-label="Закрыть">✕</button></div>
     <div id="g-body"></div>
+  </div>
+</div>
+
+<div class="modal" id="mydlg" hidden>
+  <div class="dlg" style="width:min(26rem,100%)">
+    <div class="dlg-head"><h2>Мой олень</h2><button type="button" class="x" id="my-close" aria-label="Закрыть">✕</button></div>
+    <div id="my-body"></div>
   </div>
 </div>
 
@@ -972,16 +951,115 @@ sources:[
 
 </script>
 <script>
-// Игра: время и сезоны, стойбище и его люди, пастбища, события, камера, интерфейс, цифровой олень.
+// Год каслания по шагам: одно задание на экране, одна кнопка.
+// Тексты и факты взяты из прежних заданий, календаря и словаря (glossary.js); новых сведений здесь нет.
+//
+// m     — месяц, в котором показано задание (0 = январь, дробная часть — доля месяца);
+// u     — куда приходит стойбище после действия: доля годовой петли семьи (0 — зимние пастбища, .5 — море);
+//         если u нет, стойбище стоит на месте;
+// btn   — подпись единственной кнопки; choices — вместо неё две кнопки (ok — так поступает оленевод);
+// go    — что происходит, пока действие идёт в сцене; done — итог; fact — один факт о тундре;
+// kind  — особая сцена: 'calve' (отёл) или 'corral' (кораль).
+// Слова в [квадратных скобках] — термины словаря: [слово] или [слово в тексте|Термин словаря].
+window.YH_TASKS_END=11.7;
+window.YH_TASKS=[
+  {m:2.6,u:.062,t:'Пора на север',
+    d:'Зиму [стойбище] семьи Худи провело в лесу за Обью, на [Хэнской стороне|Хэнская сторона]: олени копытят снег до [ягеля|Ягель]. С середины марта стада выходят на север — начинается весеннее [каслание].',
+    btn:'Каслать на север',
+    go:'Чумы разобраны, нарты увязаны. [Аргиш] тронулся, пастухи гонят стадо следом.',
+    done:'Стойбище вышло к Оби. Чумы поставлены, стадо пасётся рядом.',
+    fact:'[Аргиш] — караван из 6–8 связанных [нарт|Нарта]. Ведут его обычно женщины и дети, впереди на лёгкой нарте едет мужчина.'},
+
+  {m:3.3,u:.185,t:'Переправа через Обь',
+    d:'Апрель. Впереди Обь у Яр-Сале. Реку переходят, пока она подо льдом: кто задержался, рискует попасть на тающий лёд.',
+    btn:'Перейти Обь по льду',
+    go:'[Аргиш] идёт по льду через Обь у Яр-Сале.',
+    done:'Обь позади: стойбище на юге Ямала.',
+    fact:'Переход по льду длится до 10 часов: на льду лагерь не поставишь. По насту стада идут быстро, до 30 км в день.'},
+
+  {m:4.3,kind:'calve',t:'Отёл',
+    d:'Май. [Важенки|Важенка] приносят оленят — [пыжиков|Пыжик]. Как поступить стойбищу?',
+    choices:[
+      {btn:'Стоять на месте',ok:true,say:'Верно. Стойбище стоит на месте, пастухи берегут телят.'},
+      {btn:'Спешить дальше на север',say:'В отёл не спешат: стойбище подолгу стоит на месте, пастухи берегут телят. Так и сделали.'}],
+    go:'Начался отёл: важенки приносят пыжиков.',
+    fact:'Отёл идёт в мае и июне. Семьи объединяются в стойбища на отёл, а на севере начинается полярный день.'},
+
+  {m:5.4,u:.335,t:'Реки вскрылись',
+    d:'Июнь. Тундра оттаивает, лёд сошёл. Впереди река Юрибей: теперь олени переходят реки вплавь, а [нарты|Нарта] переправляют.',
+    btn:'Переправиться через Юрибей',
+    go:'На пути река: олени переходят её вплавь, нарты переправляют.',
+    done:'Стадо переплыло Юрибей и идёт через центр Ямала к морю.',
+    fact:'Реки и губы теперь всё чаще переходят по воде: лёд стал ненадёжным. Для новорождённых телят такая переправа опасна.'},
+
+  {m:6.1,u:.43,t:'Железная дорога',
+    d:'Июль. На пути железная дорога Обская — Бованенково. Для оленей на ней устроены специальные переходы.',
+    btn:'Перейти железную дорогу',
+    go:'Стадо переходит железную дорогу Обская — Бованенково по специальному переходу.',
+    done:'Дорога позади, стадо проходит Бованенково.',
+    fact:'На переходах между рельсами кладут брусья, чтобы не ломались полозья [нарт|Нарта], а трубы поднимают аркой.'},
+
+  {m:6.5,u:.5,t:'Гнус',
+    d:'Июль. В тундре [гнус] и [овод]: вдали от берега олени не едят и худеют. До Карского моря один переход.',
+    choices:[
+      {btn:'Остаться в тундре',say:'Оленеводы так не делают: вдали от моря олени худеют. Стадо увели к Карскому морю, к устью Мордыяхи.'},
+      {btn:'Вести стадо к морю',ok:true,say:'Верно. Стадо вышло к Карскому морю, к устью Мордыяхи.'}],
+    go:'Стадо идёт к побережью, на ветер.',
+    fact:'У моря холодный ветер отгоняет комаров и оводов. В прибрежной полосе олени «здоровеют», как говорят оленеводы.'},
+
+  {m:7.7,u:.68,t:'Поворот на юг',
+    d:'Август. На летних пастбищах у моря олени едят свежую зелень и нагуливают жир. Пора поворачивать на юг: в конце августа стада возвращаются через Бованенково.',
+    btn:'Повернуть на юг',
+    go:'Чумы разобраны. [Аргиш] идёт обратно через Бованенково.',
+    done:'Стойбище идёт с севера к центру Ямала. Впереди осень.',
+    fact:'[Бригады|Бригада] предприятий делают 80–120 перекочёвок в год: зимой стоят около месяца, весной по 1–3 дня, осенью по 3–5 дней.'},
+
+  {m:8.5,kind:'corral',t:'Кораль',
+    d:'Сентябрь. Пора собрать стадо в [кораль] — загон из жердей или сетей. Там метят телят и прививают оленей.',
+    btn:'Собрать стадо в кораль',
+    go:'Оленей собирают в загон.',
+    done:'Оленей собрали в загон. Телятам этого года поставили [ушные метки] семьи, всё стадо привили.',
+    fact:'После вспышки сибирской язвы в 2016 году прививки обязательны.'},
+
+  {m:9.4,u:.78,t:'Первый снег',
+    d:'Октябрь. Ложится снег, Обская губа встаёт. Впереди полярная ночь: пора на юг, к лесотундре, где есть дрова.',
+    btn:'Каслать на юг',
+    go:'[Аргиш] идёт с центра Ямала на юг.',
+    done:'Стойбище прошло центр Ямала. Чумы поставлены, стадо пасётся рядом.',
+    fact:'Тундра почти безлесна: дрова берут в лесотундре на юге или собирают ивняк по рекам. Зимой огонь в [чуме|Чум] горит круглые сутки.'},
+
+  {m:10.4,u:.88,t:'Гололёд',
+    d:'Ноябрь. Оттепель, потом мороз: на пастбище [гололёд]. [Ягель] под ледяной коркой, олени не могут его достать.',
+    choices:[
+      {btn:'Увести стадо на другое пастбище',ok:true,say:'Верно. Стадо увели на юг, туда, где ягель не под коркой льда.'},
+      {btn:'Переждать на месте',say:'Ждать нельзя: под коркой льда олени не достанут ягель. Стадо увели на другое пастбище.'}],
+    go:'Стойбище уходит с обледеневшего пастбища.',
+    fact:'Ноябрь — самый опасный месяц для гололёда. На севере Ямала в это время наступает полярная ночь.'},
+
+  {m:11.3,u:1,t:'Домой, за Обь',
+    d:'Декабрь. Обь снова подо льдом. По свежему льду стойбище уходит за реку, в лес [Хэнской стороны|Хэнская сторона], на зимние пастбища.',
+    btn:'Вернуться на зимние пастбища',
+    go:'[Аргиш] идёт по свежему льду через Обь.',
+    done:'Стойбище вернулось на зимние пастбища. Здесь есть лес, можно запасти дров.',
+    fact:'В Сеяхе, на севере Ямала, солнце не встанет до середины января. На юге, у Яр-Сале и Салехарда, полярной ночи нет.'}
+];
+
+</script>
+<script>
+// Игра: год каслания по шагам. На экране одна карточка задания и одна кнопка;
+// время идёт только от нажатий игрока. Стойбищем игра управляет сама.
 (function(){
-  var Wd=window.YH_WORLD,D=window.YH_DATA,L=window.YH_LIFE,G=window.YH_GLOSS||{terms:[],calendar:[],advice:[],sources:[]},T=Wd.T;
+  var Wd=window.YH_WORLD,D=window.YH_DATA,L=window.YH_LIFE,G=window.YH_GLOSS||{terms:[],calendar:[],sources:[]},T=Wd.T;
+  var TASKS=window.YH_TASKS,END_M=window.YH_TASKS_END,N=TASKS.length;
   var CX=Wd.CX,CZ=Wd.CZ,scene=Wd.scene,camera=Wd.camera,renderer=Wd.renderer;
   var view=document.getElementById('view');view.appendChild(renderer.domElement);
   function $(id){return document.getElementById(id);}
   function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function resize(){var w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/Math.max(1,h);camera.updateProjectionMatrix();}
-  window.addEventListener('resize',resize);resize();
+  var touch=window.matchMedia&&window.matchMedia('(pointer: coarse)').matches;
+  function phone(){return window.innerWidth<=760;}
+  function resize(){var w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/Math.max(1,h);camera.updateProjectionMatrix();shiftNow=-1;}
   function store(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||'null');if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}}
 
   // ---------- петли каслания ----------
@@ -992,210 +1070,168 @@ sources:[
   function nearestU(f,x,z){var best=0,bd=1e9;for(var u=0;u<1;u+=.004){var p=loopPos(f,u),d=(p[0]-x)*(p[0]-x)+(p[1]-z)*(p[1]-z);if(d<bd){bd=d;best=u;}}return best;}
   function loopPath(f,u0,u1){if(u1<u0)u1+=1;var pts=[];for(var u=u0;u<=u1+1e-6;u+=.008)pts.push(loopPos(f,u));pts.push(loopPos(f,u1));return pts;}
 
-  // ---------- состояние ----------
-  var MONTH_SEC=40;
-  var S={m:3.03,year:1,speed:1,food:55,wood:60,warmth:.85,people:7,jobs:{guard:2,fish:2,wood:1,chum:2},storm:0,crust:null,born:0,lost:0,startCount:0,flags:{},dayAcc:0,dayN:0};
-  var fams=D.families.map(function(f){return f;});
-  var herds=[],camps=[];
-  fams.forEach(function(f){var u=uAt(S.m),p=loopPos(f,u);var camp=new L.Camp(f,p);var herd=new L.Herd(f,[p[0]+6,p[1]-4]);herd.sat=.8;herd.health=.85;
-    camp.setCover(S.m);f.camp=camp;f.herd=herd;camps.push(camp);herds.push(herd);});
-  var me=fams[0];S.startCount=me.herd.deer.length;
+  // ---------- шаги года ----------
+  // где стоит стойбище и какой месяц в начале шага i (i = N — год пройден)
+  function uOfStep(i){for(var j=Math.min(i,N)-1;j>=0;j--)if(TASKS[j].u!=null)return TASKS[j].u%1;return 0;}
+  function mOfStep(i){return i<N?TASKS[i].m:END_M;}
+  var CALVE=-1;TASKS.forEach(function(t,i){if(t.kind==='calve')CALVE=i;});
+  // phase: intro — стартовый экран, task — ждём кнопку, go — действие идёт в сцене, done — итог и факт, end — год пройден
+  var S={m:mOfStep(0),step:0,phase:'intro',pick:-1,calves:0};
+  var anim=null;
 
-  // годовой маршрут семьи игрока и отметка «по календарю»
+  // ---------- семьи, стойбища, стада ----------
+  var fams=D.families.slice(),herds=[],camps=[];
+  fams.forEach(function(f){var p=f.player?loopPos(f,0):loopPos(f,uAt(S.m));var camp=new L.Camp(f,p);var herd=new L.Herd(f,[p[0]+6,p[1]-4]);
+    camp.setCover(S.m);f.camp=camp;f.herd=herd;camps.push(camp);herds.push(herd);});
+  var me=fams[0];
+  function famOf(id){return fams.filter(function(f){return f.id===id;})[0];}
+  function famOfDeer(d){return fams.filter(function(f){return f.herd.deer.indexOf(d)>=0;})[0]||me;}
+  function short(f){return f.ru.replace('Семья ','');}
+
+  // годовой маршрут семьи игрока
   var routePts=[];for(var ru=0;ru<=1.0001;ru+=.003){var rp=loopPos(me,ru);routePts.push(new T.Vector3(rp[0]-CX,Wd.groundAt(rp[0],rp[1])+.35,rp[1]-CZ));}
   var routeLine=new T.Line(new T.BufferGeometry().setFromPoints(routePts),new T.LineDashedMaterial({color:0xE2A332,dashSize:1.6,gapSize:1.8,transparent:true,opacity:.75}));
   routeLine.computeLineDistances();scene.add(routeLine);
-  var calRing=new T.Mesh(new T.RingGeometry(2.4,3.2,28),new T.MeshBasicMaterial({color:0xE2A332,transparent:true,opacity:.9,side:T.DoubleSide,depthWrite:false}));
-  calRing.rotation.x=-Math.PI/2;scene.add(calRing);
-  function placeRing(){var p=loopPos(me,uAt(S.m));calRing.position.set(p[0]-CX,Wd.groundAt(p[0],p[1])+.45,p[1]-CZ);}
 
   // опекаемые олени из данных
-  D.adopted.forEach(function(a){var f=fams.filter(function(x){return x.id===a.family;})[0];if(!f)return;
+  D.adopted.forEach(function(a){var f=famOf(a.family);if(!f)return;
     var d=f.herd.deer.filter(function(x){return !x.adopted&&!x.calf;})[Math.floor(L.rnd()*20)];if(!d)return;
     d.tag=a.tag;d.name=a.name;d.sex=a.sex;d.born=a.born;d.role=a.role||null;d.adopted=a;d.antler=d.sex==='m'?1.15:.75;});
   herds.forEach(function(h){h.deer.forEach(function(d){if(!d.adopted&&!d.calf&&d.sex==='m'&&L.rnd()<.55)d.role='sled';});});
-  // цифровой олень этого зрителя
+  // цифровой олень этого зрителя (хранится отдельно от прогресса игры)
   var my=store('yh-tundra-my'),myDeer=null;
-  function attachMine(){if(!my)return;var f=fams.filter(function(x){return x.id===my.family;})[0]||me;
-    var d=null;if(my.tag){f.herd.deer.forEach(function(x){if(x.tag===my.tag)d=x;});}
+  function attachMine(){if(!my)return;var f=famOf(my.family)||me,d=null;
+    if(my.tag)herds.forEach(function(h){h.deer.forEach(function(x){if(x.tag===my.tag){d=x;f=h.fam;}});});
     if(!d)d=f.herd.add({sex:my.sex});if(!d)return;
-    d.tag=my.tag;d.name=my.deerName;d.sex=my.sex||d.sex;d.mine=true;d.adopted={adopter:my.name,adopterEn:my.name,digital:!my.siteTag};d.antler=d.sex==='m'?1.15:.75;myDeer=d;}
+    d.adopted0=d.adopted;d.tag=my.tag;d.name=my.deerName;d.sex=my.sex||d.sex;d.mine=true;d.adopted={adopter:my.name||''};d.antler=d.sex==='m'?1.15:.75;myDeer=d;}
   attachMine();
 
-  // ---------- пастбища: ягель по клеткам 4×4 ----------
-  var CS=4,CW=Math.ceil(Wd.W/CS),CH=Math.ceil(Wd.H/CS),lich=new Float32Array(CW*CH),lmax=new Float32Array(CW*CH);
-  for(var j=0;j<CH;j++)for(var i=0;i<CW;i++){var x=i*CS+2,z=j*CS+2,k=j*CW+i;
-    if(!Wd.isLand(x,z)){lich[k]=-1;continue;}
-    var v=.55+.45*Wd.fbm(x*.03+5,z*.03-3,3);v*=1-Wd.mountainAt(x,z)*.8;
-    var gd=Math.hypot(x-D.gas.p[0],z-D.gas.p[1]);if(gd<22)v*=.35+.65*gd/22;
-    lich[k]=lmax[k]=clamp(v,.08,1);}
-  function pasture(x,z,r){var i0=Math.floor(x/CS),j0=Math.floor(z/CS),s=0,n=0;for(var jj=j0-r;jj<=j0+r;jj++)for(var ii=i0-r;ii<=i0+r;ii++){if(ii<0||jj<0||ii>=CW||jj>=CH)continue;var v=lich[jj*CW+ii];if(v<0)continue;s+=v;n++;}return n?s/n:0;}
-  function graze(x,z,r,amt){var i0=Math.floor(x/CS),j0=Math.floor(z/CS);for(var jj=j0-r;jj<=j0+r;jj++)for(var ii=i0-r;ii<=i0+r;ii++){if(ii<0||jj<0||ii>=CW||jj>=CH)continue;var k=jj*CW+ii;if(lich[k]>0)lich[k]=Math.max(.02,lich[k]-amt);}}
+  // ---------- расстановка мира на начало шага ----------
+  function calfScale(){return .5+.36*clamp((S.m-5.4)/5,0,1);}
+  function calfPlan(h){return Math.round(h.counts().f*.3);}
+  function addCalves(h,n){for(var q=0;q<n;q++){var d=h.add({calf:true});if(!d)break;d.scale=calfScale();}}
+  function settle(f,p){var c=f.camp,h=f.herd;c.path=null;c.packed=false;c.x=p[0];c.z=p[1];
+    c.ppl.forEach(function(q){q.x=q.tx=p[0];q.z=q.tz=p[1];});c.dogSt.forEach(function(q){q.x=p[0];q.z=p[1];});
+    delete h.R;h.hold=false;h.rush=0;h.moving=false;h.gx=h.gz=null;
+    var ok=Wd.isLand(p[0]+6,p[1]-4);h.cx=p[0]+(ok?6:0);h.cz=p[1]-(ok?4:0);
+    h.deer.forEach(function(d){var a=L.rnd()*6.28,r=Math.sqrt(L.rnd())*h.R();d.x=d.tx=h.cx+Math.cos(a)*r;d.z=d.tz=h.cz+Math.sin(a)*r;});
+    c.setCover(S.m);}
+  function placeWorld(step){S.step=step;S.m=mOfStep(step);S.pick=-1;anim=null;hideCorral();
+    herds.forEach(function(h){h.deer.filter(function(d){return d.calf;}).forEach(function(d){h.remove(d);});});
+    fams.forEach(function(f){settle(f,f===me?loopPos(me,uOfStep(step)):loopPos(f,uAt(S.m)));});
+    if(step>CALVE){herds.forEach(function(h){addCalves(h,h===me.herd&&S.calves?S.calves:calfPlan(h));});S.calves=me.herd.counts().calves;}else S.calves=0;
+    Wd.setSeason(S.m,true);follow=null;track=true;camGoal=null;cam.tx=me.camp.x-CX;cam.tz=me.camp.z-CZ;cam.dist=phone()?105:95;syncDeerLabels();}
 
-  function emit(ev,data){if(window.YH_QUEST_HOOK){try{window.YH_QUEST_HOOK(ev,data||{});}catch(e){console.error(e);}}}
-  // ---------- журнал и подсказки ----------
-  var terms=(G.terms||[]).filter(function(t){return t.t&&t.t.length>2;}).sort(function(a,b){return b.t.length-a.t.length;});
-  // подсвечивает термины словаря; найденное сразу прячется в заглушку, чтобы не искать термины внутри подсказок
-  var OPEN=String.fromCharCode(1),CLOSE=String.fromCharCode(2);
-  function termify(s){var hold=[];terms.forEach(function(t){var re=new RegExp('(^|[^А-Яа-яЁё0-9'+OPEN+'])('+t.t+')(?![А-Яа-яЁё])','i');
-      s=s.replace(re,function(m0,a,b){hold.push('<span class="term" title="'+(t.d||'').replace(/"/g,'&quot;')+'">'+b+'</span>');return a+OPEN+(hold.length-1)+CLOSE;});});
-    return s.replace(new RegExp(OPEN+'(\\d+)'+CLOSE,'g'),function(m0,i){return hold[+i];});}
-  function stamp(){return D.months[Math.floor(S.m)%12]+', '+(Math.floor((S.m%1)*30)+1);}
-  var logEl=$('log');
-  function say(text,kind){var e=document.createElement('div');e.className='msg '+(kind||'');e.innerHTML='<span class="d">'+stamp()+'</span>'+termify(text);logEl.insertBefore(e,logEl.firstChild);while(logEl.children.length>5)logEl.removeChild(logEl.lastChild);}
-  function once(key,text,kind){if(S.flags[key])return;S.flags[key]=1;say(text,kind);}
+  // ---------- кораль: загон из жердей ----------
+  var corral=null,fenceMat=new T.MeshLambertMaterial({color:0x6b4f35});
+  function hideCorral(){if(corral){scene.remove(corral);corral=null;}}
+  function showCorral(x,z,r){hideCorral();var g=new T.Group(),n=24,gy=Wd.groundAt(x,z);
+    for(var i=0;i<n;i++){var a=i/n*6.283,b=(i+1)/n*6.283,px=Math.cos(a)*r,pz=Math.sin(a)*r,qx=Math.cos(b)*r,qz=Math.sin(b)*r;
+      var y0=Wd.groundAt(x+px,z+pz)-gy,y1=Wd.groundAt(x+qx,z+qz)-gy,len=Math.hypot(qx-px,qz-pz);
+      var post=new T.Mesh(new T.BoxGeometry(.2,1.8,.2),fenceMat);post.position.set(px,y0+.9,pz);g.add(post);
+      [.7,1.35].forEach(function(y){var rail=new T.Mesh(new T.BoxGeometry(len,.09,.09),fenceMat);rail.position.set((px+qx)/2,(y0+y1)/2+y,(pz+qz)/2);rail.rotation.y=-Math.atan2(qz-pz,qx-px);g.add(rail);});}
+    g.position.set(x-CX,gy,z-CZ);scene.add(g);corral=g;}
 
-  var ADV=[
-    'Полярная ночь. Стадо на зимних пастбищах в лесотундре копытит снег до ягеля. Держите пастухов у стада: зимой ходят волки.',
-    'Самые морозы. Берегите дрова: в чуме огонь горит круглые сутки. Следите за гололёдом: под коркой льда олени не достанут ягель.',
-    'Светлеет. Стадо набирает силы перед весенним касланием. Скоро трогаться на север.',
-    'Весенняя кочёвка. Переходите реки, пока держится лёд. Стельные важенки идут медленно, не гоните стадо.',
-    'Отёл. Важенки приносят оленят. Стойбище идёт короткими переходами и подолгу стоит на месте.',
-    'Тундра оттаивает, вскрываются реки. Олени переходят их вплавь. Стадо идёт к побережью Карского моря.',
-    'Гнус и овод. Держите стадо у моря, на ветру: вдали от берега олени худеют. Хорошее время для рыбалки.',
-    'Летние пастбища у моря. Олени едят свежую зелень и нагуливают жир. Пора поворачивать на юг.',
-    'Поворот на юг. Кораль: стадо пересчитывают, метят оленят, ветеринары прививают оленей.',
-    'Гон у быков. Ложится снег. Заготавливайте дрова и рыбу: впереди полярная ночь.',
-    'Реки встают. Стадо возвращается к лесотундре, к зимним пастбищам.',
-    'Полярная ночь. Стадо на зимних пастбищах. Здесь есть лес: можно запасти дров.'];
-  function advice(){var mi=Math.floor(S.m)%12;return (G.advice&&G.advice[mi])||ADV[mi];}
+  // место для кораля: рядом со стойбищем, целиком на суше, в стороне от железной дороги и посёлков
+  function corralSpot(r){var c=me.camp;for(var q=0;q<12;q++){var a=1.2+q*.5236,x=c.x+Math.cos(a)*(r+9),z=c.z+Math.sin(a)*(r+9),ok=true;
+      for(var w=0;w<8;w++)if(!Wd.isLand(x+Math.cos(w*.785)*r,z+Math.sin(w*.785)*r))ok=false;
+      if(Wd.lineDist(x,z,D.railway.p)<r+3||D.towns.some(function(t){return Math.hypot(t.p[0]-x,t.p[1]-z)<r+10;}))ok=false;
+      if(ok)return [x,z];}return null;}
 
-  // ---------- люди стойбища ----------
-  var JOBS=[
-    {k:'guard',ru:'Пастухи',d:'берегут стадо от волков, не дают оленям разбрестись'},
-    {k:'fish',ru:'Рыбаки',d:'ставят сети: еда для семьи. Подо льдом ловится хуже'},
-    {k:'wood',ru:'Дрова',d:'в лесотундре дров много, в тундре только ивняк'},
-    {k:'chum',ru:'В чуме',d:'держат огонь и шьют: в чуме теплее, дров уходит меньше'}];
-  function busy(){var s=0;for(var k in S.jobs)s+=S.jobs[k];return s;}
-  function renderJobs(){$('jobs').innerHTML=JOBS.map(function(J){return '<div class="job"><div>'+J.ru+'<small>'+J.d+'</small></div><button type="button" id="j-'+J.k+'-m" data-j="'+J.k+'" data-d="-1" aria-label="Меньше: '+J.ru+'">−</button><b>'+S.jobs[J.k]+'</b><button type="button" id="j-'+J.k+'-p" data-j="'+J.k+'" data-d="1" aria-label="Больше: '+J.ru+'">+</button></div>';}).join('');
-    var free=S.people-busy();$('free').textContent='В стойбище '+S.people+' человек. Свободны: '+free+(free?' (дети и старики помогают по хозяйству)':'');}
-  $('jobs').addEventListener('click',function(e){var b=e.target.closest('button[data-j]');if(!b)return;var k=b.getAttribute('data-j'),d=+b.getAttribute('data-d');
-    if(d>0&&busy()>=S.people)return;S.jobs[k]=clamp(S.jobs[k]+d,0,S.people);renderJobs();});
+  // ---------- действие шага ----------
+  function pathLen(pts){var l=0;for(var i=1;i<pts.length;i++)l+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);return l;}
+  function startTravel(f,pts,dur){f.camp.travel(pts);f.camp.spd=f.camp.len/Math.max(.5,dur);f.herd.moving=true;}
+  // остальные семьи кочуют по календарю
+  function moveOthers(m1,dur){fams.forEach(function(f){if(f===me)return;var c=f.camp,cu=nearestU(f,c.x,c.z),tu=uAt(m1),d=((tu-cu)%1+1)%1;if(d>.5)return;
+    var tp=loopPos(f,tu);if(Math.hypot(tp[0]-c.x,tp[1]-c.z)<6)return;var pts=loopPath(f,cu,tu);pts.unshift([c.x,c.z]);startTravel(f,pts,dur);});}
+  function act(pick){if(S.phase!=='task')return;var task=TASKS[S.step],h=me.herd,dur=calm?1.2:5;
+    S.phase='go';S.pick=pick;closePop();$('card').hidden=true;hideCorral();delete h.R;h.hold=false;
+    if(task.u!=null){var pts=loopPath(me,uOfStep(S.step),task.u);pts.unshift([me.camp.x,me.camp.z]);
+      dur=calm?1.2:clamp(pathLen(pts)/16,4.5,8);startTravel(me,pts,dur);}
+    // в дороге месяц меняется ближе к концу пути: переправа по льду идёт ещё по снегу
+    anim={t:0,dur:dur,m0:S.m,m1:mOfStep(S.step+1),tick:null,late:task.u!=null};
+    if(task.kind==='calve'){var plan=calfPlan(h),born=0;S.calves=0;
+      herds.forEach(function(o){if(o!==h)addCalves(o,calfPlan(o));});
+      anim.tick=function(k){var want=Math.round(plan*k);while(born<want){born++;if(h.add({calf:true}))S.calves++;}renderTop();};}
+    if(task.kind==='corral'){var r=Math.max(8,Math.sqrt(h.deer.length)*.62),at=corralSpot(r)||[h.cx,h.cz];h.gx=at[0];h.gz=at[1];h.hold=true;h.rush=dur;h.R=function(){return r-1.3;};showCorral(at[0],at[1],r);}
+    moveOthers(anim.m1,dur);
+    // если игрок следит за своим оленем в этом стаде, камера остаётся с ним
+    if(!(follow&&follow===myDeer&&h.deer.indexOf(follow)>=0))follow=null;track=true;camGoal={d:task.u!=null?(phone()?150:130):(phone()?80:70)};
+    renderCard();}
+  function finishAct(){S.m=anim.m1;anim=null;Wd.setSeason(S.m,true);camps.forEach(function(c){if(!c.packed)c.setCover(S.m);});
+    herds.forEach(function(h){h.deer.forEach(function(d){if(d.calf)d.scale=Math.max(d.scale,calfScale());});});
+    S.phase='done';camGoal={d:phone()?105:95};saveNow();renderCard();renderTop();}
+  function next(){if(S.phase!=='done')return;S.step++;S.pick=-1;closePop();
+    if(S.step>=N){S.phase='end';showEnd();}else S.phase='task';saveNow();renderCard();renderTop();}
 
-  // ---------- верхняя полоса ----------
-  function stock(id,k,v,frac,warn){return '<div class="stock'+(warn?' warn':'')+'" id="'+id+'"><span class="v">'+v+'</span><span class="k">'+k+'</span>'+(frac!=null?'<div class="bar"><i style="width:'+Math.round(clamp(frac,0,1)*100)+'%"></i></div>':'')+'</div>';}
-  function seasonName(m){var mi=Math.floor(m)%12;return ['зимние пастбища','зимние пастбища','конец зимы','весенняя кочёвка','отёл','путь на север','летние пастбища у моря','летние пастбища у моря','кораль, поворот на юг','гон, первый снег','осенняя кочёвка','зимние пастбища'][mi];}
-  function renderTop(){var h=me.herd,c=h.counts();
-    $('t-month').textContent=D.months[Math.floor(S.m)%12];
-    $('t-season').textContent='Год '+S.year+' · '+seasonName(S.m);
-    $('stocks').innerHTML=stock('s-herd','Стадо',c.all-c.calves+(c.calves?' + '+c.calves:''),null)+
-      stock('s-sat','Сытость стада',Math.round(h.sat*100)+'%',h.sat,h.sat<.45)+
-      stock('s-hp','Здоровье',Math.round(h.health*100)+'%',h.health,h.health<.5)+
-      stock('s-food','Еда',Math.round(S.food),clamp(S.food/80,0,1),S.food<10)+
-      stock('s-wood','Дрова',Math.round(S.wood),clamp(S.wood/60,0,1),S.wood<8)+
-      stock('s-warm','Тепло в чуме',Math.round(S.warmth*100)+'%',S.warmth,S.warmth<.5);}
+  // ---------- словарь: термины в тексте и подсказка ----------
+  var termIx={};(G.terms||[]).forEach(function(t,i){termIx[t.t.toLowerCase()]=i;});
+  // [слово] или [слово в тексте|Термин словаря] → нажимаемое слово с пунктирной чертой
+  function termify(s){return s.replace(/\[([^\]|]+)(?:\|([^\]]+))?\]/g,function(m0,w,key){var i=termIx[(key||w).toLowerCase()];
+    if(i==null){console.error('Нет термина в словаре: '+(key||w));return w;}
+    return '<button type="button" class="term" data-term="'+i+'">'+w+'</button>';});}
+  var pop=$('pop'),popTerm=-1;
+  function closePop(){pop.hidden=true;}
+  function showPop(el){var i=+el.getAttribute('data-term'),t=G.terms[i];if(!t)return;popTerm=i;
+    $('pop-t').textContent=t.t;$('pop-d').innerHTML=t.d+(t.n?' <small>(ненецк. '+t.n+')</small>':'');pop.hidden=false;
+    var r=el.getBoundingClientRect(),pw=pop.offsetWidth,ph=pop.offsetHeight;
+    var x=clamp(r.left+r.width/2-pw/2,8,window.innerWidth-pw-8),y=r.top-ph-8;if(y<8)y=Math.min(window.innerHeight-ph-8,r.bottom+8);
+    pop.style.left=Math.round(x)+'px';pop.style.top=Math.round(Math.max(8,y))+'px';}
+  document.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest('.term');
+    if(t){e.preventDefault();showPop(t);return;}
+    if(!pop.hidden&&!(e.target.closest&&e.target.closest('#pop')))closePop();});
+  $('pop-x').onclick=closePop;
+  $('pop-all').onclick=function(){closePop();openGloss(popTerm);};
 
-  // ---------- стоянки ----------
-  function campU(){return nearestU(me,me.camp.x,me.camp.z);}
-  function nextTarget(){var cu=campU(),cal=uAt(S.m+.5),d=((cal-cu)%1+1)%1;if(d>.5)d=0;var step=Math.max(.05,Math.min(.12,d+.03));return {u0:cu,u1:cu+step};}
-  function renderNext(){var cu=campU(),cal=uAt(S.m),diff=((cal-cu+.5)%1+1)%1-.5;var km=Math.round(Math.abs(diff)*746*1.39/10)*10;
-    var txt;if(me.camp.path)txt='Стойбище в пути: аргиш идёт к новой стоянке.';
-    else if(Math.abs(diff)<.03)txt='Стойбище идёт <b>по календарю каслания</b>.';
-    else if(diff>0)txt='По календарю стадо должно быть дальше на <b>'+km+' км</b>. Пора каслать.';
-    else txt='Вы опережаете календарь на <b>'+km+' км</b>. Можно постоять, пока есть ягель.';
-    $('next').innerHTML=txt+' Ягель вокруг: <b>'+Math.round(pasture(me.herd.cx,me.herd.cz,3)*100)+'%</b>.';
-    $('a-next').disabled=!!me.camp.path;$('a-pick').disabled=!!me.camp.path;
-    $('advice').innerHTML='<span class="mono">'+D.months[Math.floor(S.m)%12]+'</span>'+termify(advice());}
+  function renderGloss(){var mi=Math.floor(S.m)%12,h='',n=0;
+    if(G.calendar&&G.calendar.length){h+='<h3>Календарь каслания</h3><table class="cal"><thead><tr><th>Месяц</th><th>Где стадо</th><th>Что происходит</th></tr></thead><tbody>'+
+      G.calendar.map(function(r,i){return '<tr class="'+(i===mi?'now':'')+'"><td>'+r.m+'</td><td>'+r.where+'</td><td>'+r.what+'</td></tr>';}).join('')+'</tbody></table>';}
+    var cats={};(G.terms||[]).forEach(function(t,i){t.i=i;(cats[t.c||'Разное']=cats[t.c||'Разное']||[]).push(t);});
+    Object.keys(cats).forEach(function(c){h+='<h3>'+c+'</h3><dl class="gl">'+cats[c].map(function(t){n++;return '<dt id="gt-'+t.i+'">'+t.t+'</dt><dd>'+t.d+(t.n?' <small>(ненецк. '+t.n+')</small>':'')+'</dd>';}).join('')+'</dl>';});
+    if(G.sources&&G.sources.length)h+='<h3>Источники</h3><ol class="src">'+G.sources.map(function(s){return '<li><a href="'+s.u+'" target="_blank" rel="noopener">'+s.t+'</a></li>';}).join('')+'</ol>';
+    if(!h)h='<p class="sample">Словарь заполняется.</p>';$('g-body').innerHTML=h;}
+  function openGloss(term){renderGloss();$('gloss').hidden=false;var el=term>=0?$('gt-'+term):null;
+    if(el)el.scrollIntoView({block:'center'});else $('gloss').firstElementChild.scrollTop=0;}
+  $('b-gloss').onclick=function(){openGloss(-1);};$('e-gloss').onclick=function(){openGloss(-1);};
+  $('g-close').onclick=function(){$('gloss').hidden=true;};
+  ['gloss','mydlg'].forEach(function(id){$(id).addEventListener('click',function(e){if(e.target===$(id))$(id).hidden=true;});});
 
-  function startTravel(f,pts,quiet){f.camp.travel(pts);f.herd.moving=true;
-    if(!quiet){var river=false,rail=false,gulf=false;for(var q=0;q<pts.length;q+=2){if(Wd.riverNear(pts[q][0],pts[q][1]))river=true;if(Wd.seaDist(pts[q][0],pts[q][1])===0&&Wd.heightAt(pts[q][0],pts[q][1])<0)gulf=true;if(Wd.lineDist(pts[q][0],pts[q][1],D.railway.p)<2.5)rail=true;}
-      say('Чумы разобраны, нарты увязаны. Аргиш тронулся, пастухи гонят стадо следом.','info');
-      if(river)say(Wd.iceCover(S.m)>.5?'Путь идёт через реку по льду.':'На пути река: олени переходят её вплавь, нарты переправляют.','info');
-      if(rail)once('rail'+S.year+Math.floor(S.m),'Стадо переходит железную дорогу Обская — Бованенково по специальному переходу.','info');
-      if(gulf)say('Аргиш идёт по льду через Обь у Яр-Сале. Такой переход длится до 10 часов: на льду лагерь не ставят.','info');
-      if(f===me)emit('move',{river:river||gulf,ice:Wd.iceCover(S.m)>.5,rail:rail});}}
-  function clearPath(x0,z0,x,z){var dx=x-x0,dz=z-z0,l=Math.hypot(dx,dz),pts=[];for(var s=0;s<=1.0001;s+=3/Math.max(3,l)){var px=x0+dx*s,pz=z0+dz*s;if(Wd.seaDist(px,pz)===0&&Wd.heightAt(px,pz)<0)return null;pts.push([px,pz]);}pts.push([x,z]);return pts;}
-  function freshPasture(){var best=null,bv=-1;for(var r=14;r<=34;r+=10)for(var a=0;a<6.28;a+=.35){var x=me.camp.x+Math.cos(a)*r,z=me.camp.z+Math.sin(a)*r;if(!Wd.isLand(x,z)||Wd.mountainAt(x,z)>.2||Wd.waterDist(x,z)<2)continue;var v=pasture(x,z,3)-r*.002;if(v>bv){var p=clearPath(me.camp.x,me.camp.z,x,z);if(p){bv=v;best=p;}}}return best;}
-  $('a-next').addEventListener('click',function(){if(me.camp.path)return;var cu=campU(),cal=uAt(S.m+.5),ahead=((cal-cu)%1+1)%1;if(ahead>.5)ahead=0;
-    if(ahead<.02){var fp=freshPasture();if(fp){say('Стойбище переходит на соседнее нетронутое пастбище.','info');startTravel(me,fp);follow=null;return;}}
-    var t=nextTarget();var pts=loopPath(me,t.u0,t.u1);pts.unshift([me.camp.x,me.camp.z]);startTravel(me,pts);follow=null;});
-  var pickMode=false;
-  $('a-pick').addEventListener('click',function(){pickMode=!pickMode;$('a-pick').setAttribute('aria-pressed',String(pickMode));if(pickMode)say('Нажмите на карте место новой стоянки: на суше, не дальше 170 км.','info');});
-  $('a-find').addEventListener('click',function(){flyTo(me.camp.x,me.camp.z,90);});
-  function tryMoveTo(x,z){var dx=x-me.camp.x,dz=z-me.camp.z,dist=Math.hypot(dx,dz);
-    if(!Wd.isLand(x,z)){say('Там вода. Выберите место на суше.','bad');return false;}
-    if(dist>125){say('Слишком далеко для одного перехода. Выберите место ближе.','bad');return false;}
-    var pts=[];for(var s=0;s<=1.0001;s+=3/Math.max(3,dist)){var px=me.camp.x+dx*s,pz=me.camp.z+dz*s;if(Wd.seaDist(px,pz)===0&&Wd.heightAt(px,pz)<0){say('На пути море или губа. Обходите по суше.','bad');return false;}pts.push([px,pz]);}
-    pts.push([x,z]);startTravel(me,pts);return true;}
+  // ---------- верхняя полоса и карточка задания ----------
+  var SEASONS=['зимние пастбища','зимние пастбища','конец зимы','весенняя кочёвка','отёл','путь на север','летние пастбища у моря','летние пастбища у моря','кораль, поворот на юг','гон, первый снег','осенняя кочёвка','зимние пастбища'];
+  function renderTop(){var mi=Math.floor(S.m)%12;$('t-month').textContent=D.months[mi];$('t-herd').textContent=me.herd.deer.length;$('t-season').textContent=' · '+SEASONS[mi];}
+  function renderCard(){var el=$('task');if(S.phase==='intro'||S.phase==='end'){el.hidden=true;return;}
+    var task=TASKS[S.step],acts=$('k-acts'),had=el.contains(document.activeElement),done=S.phase==='done',go=S.phase==='go',h;
+    el.hidden=false;el.classList.toggle('done',done);
+    $('k-prog').style.width=((S.step+(done?1:0))/N*100)+'%';
+    $('k-step').textContent='Шаг '+(S.step+1)+' из '+N+(done?' · готово':go&&task.u!=null?' · в пути':'');
+    $('k-title').textContent=task.t;
+    if(done){var ch=task.choices&&task.choices[S.pick];
+      $('k-text').innerHTML='<p>'+termify([ch?ch.say:'',task.done||'',task.kind==='calve'?'Оленят в стаде: '+S.calves+'.':''].filter(Boolean).join(' '))+'</p>'+
+        '<p class="fact"><span class="mono">Факт о тундре</span>'+termify(task.fact)+'</p>';
+      h='<button type="button" class="btn big" data-act="next">'+(S.step===N-1?'Итоги года':'Дальше')+'</button>';}
+    else if(go){$('k-text').innerHTML='<p>'+termify(task.go)+'</p>';
+      h='<button type="button" class="btn big" disabled>'+(task.u!=null?'Аргиш в пути…':task.kind==='calve'?'Идёт отёл…':'Стадо собирают…')+'</button>';}
+    else{$('k-text').innerHTML='<p>'+termify(task.d)+'</p>';
+      h=task.choices?task.choices.map(function(c,i){return '<button type="button" class="btn big" data-act="'+i+'">'+c.btn+'</button>';}).join(''):
+        '<button type="button" class="btn big" data-act="-1">'+task.btn+'</button>';}
+    acts.innerHTML=h;$('k-text').scrollTop=0;
+    if(had){var b=acts.querySelector('button:not([disabled])');if(b)b.focus();}}
+  $('k-acts').addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b)return;var a=b.getAttribute('data-act');if(a==='next')next();else act(+a);});
 
-  // ---------- события по дням ----------
-  function adultPool(h,pref){return h.deer.filter(function(d){return !d.adopted&&!d.mine&&(!pref||pref(d));});}
-  function lose(h,n,why){var lost=0;for(var q=0;q<n;q++){var pool=adultPool(h,function(d){return d.calf;});if(!pool.length)pool=adultPool(h);if(!pool.length)break;h.remove(pool[Math.floor(L.rnd()*pool.length)]);lost++;}if(h===me.herd)S.lost+=lost;return lost;}
-  function crustAt(x,z){var c=S.crust;return c&&Math.hypot(x-c.x,z-c.z)<c.r;}
-  function herdDay(f){var h=f.herd,m=S.m,gr=Wd.greenness(m),sc=Wd.snowCover(m);
-    var n=h.deer.length,pa=pasture(h.cx,h.cz,3);
-    var winterFood=pa*(crustAt(h.cx,h.cz)?.2:1)*(sc>.5?.95:1);
-    var target=winterFood*(1-gr)+Math.max(.62+.33*gr,winterFood)*gr;
-    if(Math.hypot(h.cx-D.gas.p[0],h.cz-D.gas.p[1])<20)target*=.75;
-    if(h.moving)target=Math.min(target,.75);
-    h.sat+=(target-h.sat)*.07;
-    graze(h.cx,h.cz,3,.0032*n/120*(1-.8*gr));
-    var dh=(h.sat-.52)*.02;
-    if(m>=6&&m<7.6){var sd=Wd.seaDist(h.cx,h.cz);if(sd>16)dh-=.012*Math.min(1,(sd-16)/30);}
-    if(f===me&&S.jobs.guard===0)dh-=.004;
-    h.health=clamp(h.health+dh,.08,1);
-    if(h.health<.3&&L.rnd()<(.3-h.health)*1.5){var weak=lose(h,1);if(weak&&f===me)once('weak'+S.year+Math.floor(m),'Олени слабеют от бескормицы, есть падёж. Уводите стадо на нетронутые пастбища.','bad');}
-    // рост телят
-    h.deer.forEach(function(d){if(d.calf)d.scale+=(.86-d.scale)*.005;});
-  }
-  function day(){S.dayN++;var m=S.m,mi=Math.floor(m)%12,sc=Wd.snowCover(m),ice=Wd.iceCover(m),gr=Wd.greenness(m);
-    for(var k=0;k<lich.length;k++){if(lich[k]>=0&&lich[k]<lmax[k])lich[k]=Math.min(lmax[k],lich[k]+.00028);}
-    fams.forEach(herdDay);
-    // хозяйство стойбища
-    var c=me.camp,moving=!!c.path;
-    var wd=Wd.waterDist(c.x,c.z),fr=moving?0:(wd<8?1.15:wd<22?.5:.12)*(ice>.6?.45:1);
-    S.food+=S.jobs.fish*fr*1.25-S.people*.24;
-    var fo=Wd.forestAt(c.x,c.z),wr=moving?0:(fo>.15?2.2:(wd<8?.75:.45));
-    S.wood+=S.jobs.wood*wr-(.25+1.05*sc)*(1-.08*S.jobs.chum);
-    if(S.food<0){S.food=0;var pool=adultPool(me.herd,function(d){return !d.calf&&d.sex==='m';});if(!pool.length)pool=adultPool(me.herd,function(d){return !d.calf;});
-      if(pool.length){me.herd.remove(pool[0]);S.food+=20;S.lost++;say('Рыбы не хватило: семья взяла оленя из стада на мясо. Опекаемых оленей это не касается.','bad');}}
-    S.warmth+=((S.wood>0?.92:.25)-S.warmth)*.15;if(S.wood<0)S.wood=0;
-    if(S.wood<=0&&sc>.4)once('cold'+S.year+mi,'В чуме холодно: кончились дрова. Поставьте людей на заготовку или каслайте к лесотундре.','bad');
-    // отёл
-    if(m>=4.3&&m<5.5){fams.forEach(function(f){var h=f.herd,c2=h.counts(),rate=c2.f*.5/36*(h.health>.5?1:.6);var nb=Math.floor(rate+L.rnd());
-      for(var q=0;q<nb;q++){var d=h.add({calf:true});if(d&&f===me)S.born++;}});
-      once('calv'+S.year,'Начался отёл: важенки приносят пыжиков. Стойбище стоит на месте, пастухи берегут телят.','good');}
-    if(m>=6&&m<7.6&&Wd.seaDist(me.herd.cx,me.herd.cz)>16)once('gnus'+S.year,'Гнус и овод. Вдали от моря олени не едят и худеют. Ведите стадо к побережью, на ветер.','bad');
-    if(m>=8.45&&!S.flags['cor'+S.year]){S.flags['cor'+S.year]=1;var c3=me.herd.counts();
-      
-      emit('corral');say('Кораль: оленей собрали в загон. '+c3.calves+' телятам этого года поставили ушные метки семьи, всё стадо привили. После вспышки сибирской язвы в 2016 году прививки обязательны.','info');}
-    if(m>=10.1&&!S.flags['slt'+S.year]){S.flags['slt'+S.year]=1;var bulls=adultPool(me.herd,function(d){return !d.calf&&d.sex==='m'&&d.role!=='sled';});var take=Math.floor(bulls.length*.1);for(var q2=0;q2<take;q2++)me.herd.remove(bulls[q2]);S.food+=take*14;
-      say('Убойная кампания: стада подходят к цехам в Яр-Сале и Сеяхе. Семья сдала '+take+' быков на мясо: на выручку купят муку, бензин и продукты на зиму. Опекаемых оленей это не касается.','info');}
-    if(mi===10&&(m%1)>.6)once('night'+S.year,'На севере Ямала наступает полярная ночь: в Сеяхе солнце не встанет до середины января. На юге, у Яр-Сале и Салехарда, полярной ночи нет.','info');
-    if(mi===0&&(m%1)>.6)once('sun'+S.year,'На севере Ямала солнце впервые после полярной ночи показалось над горизонтом.','good');
-    // гололёд
-    if(S.crust){S.crust.left--;if(S.crust.left<=0){S.crust=null;say('Корка льда на пастбищах сошла.','good');}}
-    else if((mi>=10||mi<=2)&&L.rnd()<(mi===10?.02:.007)){S.crust={x:me.herd.cx,z:me.herd.cz,r:55,left:25};emit('crust');say('Гололёд: оттепель, потом мороз. Ягель под ледяной коркой, олени не могут его достать. Уводите стадо на другое пастбище.','bad');}
-    // пурга
-    if(S.storm>0){S.storm--;if(!S.storm)say('Пурга стихла.','good');}
-    else if((mi>=9||mi<=3)&&L.rnd()<.022){S.storm=2+Math.floor(L.rnd()*3);say('Пурга. Аргиш почти стоит, пастухи держат стадо вместе.','bad');}
-    // волки
-    if(sc>.4&&!L.wolves.length&&L.rnd()<.03){var a=L.rnd()*6.28,h=me.herd,n=3+Math.floor(L.rnd()*3);
-      for(var q3=0;q3<n;q3++)L.wolves.push({x:h.cx+Math.cos(a)*32+(L.rnd()-.5)*6,z:h.cz+Math.sin(a)*32+(L.rnd()-.5)*6,tx:h.cx,tz:h.cz,sp:2.6+L.rnd(),flee:false,h:0});
-      say('Лайки залаяли: к стаду идут волки.','bad');}
-    if(m>=5&&m<8.5&&S.jobs.guard<2&&L.rnd()<.012){if(lose(me.herd,1)&&(emit('fox'),true))say('Песец утащил оленёнка. Песцов стало больше, а телят без пастухов не уберечь.','bad');}
-    if(m>=7&&m<10.5&&me.camp.z<230&&L.rnd()<.02){if(S.jobs.guard>=2)say('К стойбищу подходил белый медведь. Лайки подняли лай, пастухи отогнали его. Охота на белого медведя запрещена.','info');else{S.food=Math.max(0,S.food-15);say('Белый медведь разорил нарту с продуктами. Поставьте больше людей на охрану.','bad');}}
-    // ИИ-семьи кочуют по календарю
-    fams.forEach(function(f){if(f===me||f.camp.path)return;var cu=nearestU(f,f.camp.x,f.camp.z),tu=uAt(S.m+.35),d=((tu-cu)%1+1)%1;if(d>.5)return;
-      var tp=loopPos(f,tu);if(Math.hypot(tp[0]-f.camp.x,tp[1]-f.camp.z)>14){var pts=loopPath(f,cu,tu);pts.unshift([f.camp.x,f.camp.z]);startTravel(f,pts,true);}});
-    // новый год оленей: телята становятся годовалыми
-    if(mi===0&&!S.flags['ny'+S.year]){S.flags['ny'+S.year]=1;herds.forEach(function(h){h.deer.forEach(function(d){if(d.calf){d.calf=false;d.yearling=true;}});});}
-    if(S.dayN%30===0)renderSide();
-    emit('day');
-  }
-  function wolvesFrame(dt){var h=me.herd;for(var q=L.wolves.length-1;q>=0;q--){var w=L.wolves[q];
-      if(!w.flee){w.tx=h.cx;w.tz=h.cz;if(Math.hypot(w.x-h.cx,w.z-h.cz)<h.R()+1.5){
-        var g=S.jobs.guard,lost=0;if(g>=2){}else if(g===1){if(L.rnd()<.5)lost=lose(h,1);}else lost=lose(h,1+Math.floor(L.rnd()*3));
-        L.wolves.forEach(function(o){o.flee=true;var a=Math.atan2(o.z-h.cz,o.x-h.cx);o.tx=h.cx+Math.cos(a)*90;o.tz=h.cz+Math.sin(a)*90;});
-        emit('wolves',{lost:lost});say(lost?'Волки задрали '+lost+(lost===1?' оленя':' оленей')+'. Поставьте больше пастухов к стаду.':'Пастухи и лайки отогнали волков. Стадо цело.',lost?'bad':'good');break;}}
-      else if(Math.hypot(w.x-w.tx,w.z-w.tz)<2)L.wolves.splice(q,1);}}
+  // ---------- итоги года ----------
+  function showEnd(){var c=me.herd.counts();$('e-start').textContent=c.all-c.calves;$('e-born').textContent=c.calves;$('e-now').textContent=c.all;$('end').hidden=false;}
+  $('e-again').onclick=function(){$('end').hidden=true;S.calves=0;begin(0);};
+  $('e-my').onclick=function(){openMy();};
 
   // ---------- камера ----------
-  var cam={tx:me.camp.x-CX,tz:me.camp.z-CZ,dist:95,yaw:.25,pitch:.95},camGoal=null,follow=null;
+  var cam={tx:me.camp.x-CX,tz:me.camp.z-CZ,dist:phone()?105:95,yaw:.25,pitch:.95},camGoal=null,follow=null,track=true,shift=0,shiftNow=-1;
   function applyCam(){var gy=Wd.groundAt(cam.tx+CX,cam.tz+CZ),cp=Math.cos(cam.pitch),sp=Math.sin(cam.pitch);
     camera.position.set(cam.tx+Math.sin(cam.yaw)*cp*cam.dist,gy+sp*cam.dist,cam.tz+Math.cos(cam.yaw)*cp*cam.dist);
     var minY=Wd.groundAt(camera.position.x+CX,camera.position.z+CZ)+3;if(camera.position.y<minY)camera.position.y=minY;
     camera.lookAt(cam.tx,gy,cam.tz);}
+  // на телефоне карточка закрывает низ экрана: сдвигаем кадр вверх, чтобы стойбище было в видимой части
+  function shiftView(dt){var el=$('card').hidden?$('task'):$('card'),want=phone()&&!el.hidden?el.offsetHeight/2:0;shift+=(want-shift)*Math.min(1,dt*5);var s=Math.round(shift);
+    if(s===shiftNow)return;shiftNow=s;var w=view.clientWidth,h=view.clientHeight;if(s)camera.setViewOffset(w,h,0,s,w,h);else camera.clearViewOffset();}
   function flyTo(x,z,dist){camGoal={x:x-CX,z:z-CZ,d:dist||cam.dist};}
   var el=renderer.domElement,ptrs={},drag=null;
   el.addEventListener('contextmenu',function(e){e.preventDefault();});
@@ -1208,84 +1244,81 @@ sources:[
     ptrs[e.pointerId]={x:e.clientX,y:e.clientY};if(!drag)return;var dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
     if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>5)drag.moved=true;
     if(drag.btn===2||e.shiftKey){cam.yaw-=dx*.006;cam.pitch=clamp(cam.pitch+dy*.004,.35,1.45);}
-    else{var k=cam.dist*.0021,fx=-Math.sin(cam.yaw),fz=-Math.cos(cam.yaw),rx=Math.cos(cam.yaw),rz=-Math.sin(cam.yaw);cam.tx+=-rx*dx*k+fx*dy*k;cam.tz+=-rz*dx*k+fz*dy*k;if(drag.moved)follow=null;}});
+    else{var k=cam.dist*.0021,fx=-Math.sin(cam.yaw),fz=-Math.cos(cam.yaw),rx=Math.cos(cam.yaw),rz=-Math.sin(cam.yaw);cam.tx+=-rx*dx*k+fx*dy*k;cam.tz+=-rz*dx*k+fz*dy*k;if(drag.moved){follow=null;track=false;}}});
   function up(e){var wasClick=drag&&!drag.moved&&performance.now()-drag.t<500&&Object.keys(ptrs).length===1&&drag.btn===0;delete ptrs[e.pointerId];if(wasClick)pick(e.clientX,e.clientY);if(!Object.keys(ptrs).length)drag=null;}
   el.addEventListener('pointerup',up);el.addEventListener('pointercancel',function(e){delete ptrs[e.pointerId];drag=null;});
   el.addEventListener('wheel',function(e){e.preventDefault();cam.dist=clamp(cam.dist*Math.pow(1.0012,e.deltaY),16,640);camGoal=null;},{passive:false});
-  var keys={};window.addEventListener('keydown',function(e){if(e.target.closest&&e.target.closest('input,select,textarea'))return;keys[e.key.toLowerCase()]=1;if(e.key===' '){e.preventDefault();setSpeed(S.speed?0:1);}});
+  var keys={};
+  window.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){if(!pop.hidden)closePop();else if(!$('gloss').hidden)$('gloss').hidden=true;else if(!$('mydlg').hidden)$('mydlg').hidden=true;else if(!$('mini').hidden)toggleMap(false);return;}
+    if(e.target.closest&&e.target.closest('input,select,textarea'))return;keys[e.key.toLowerCase()]=1;});
   window.addEventListener('keyup',function(e){keys[e.key.toLowerCase()]=0;});
-  function keyCam(dt){var k=cam.dist*.9*dt,fx=-Math.sin(cam.yaw),fz=-Math.cos(cam.yaw),rx=Math.cos(cam.yaw),rz=-Math.sin(cam.yaw);
-    if(keys.w||keys.arrowup){cam.tx+=fx*k;cam.tz+=fz*k;}if(keys.s||keys.arrowdown){cam.tx-=fx*k;cam.tz-=fz*k;}
-    if(keys.a||keys.arrowleft){cam.tx-=rx*k;cam.tz-=rz*k;}if(keys.d||keys.arrowright){cam.tx+=rx*k;cam.tz+=rz*k;}
+  function keyCam(dt){var k=cam.dist*.9*dt,fx=-Math.sin(cam.yaw),fz=-Math.cos(cam.yaw),rx=Math.cos(cam.yaw),rz=-Math.sin(cam.yaw),mv=false;
+    if(keys.w||keys.arrowup){cam.tx+=fx*k;cam.tz+=fz*k;mv=true;}if(keys.s||keys.arrowdown){cam.tx-=fx*k;cam.tz-=fz*k;mv=true;}
+    if(keys.a||keys.arrowleft){cam.tx-=rx*k;cam.tz-=rz*k;mv=true;}if(keys.d||keys.arrowright){cam.tx+=rx*k;cam.tz+=rz*k;mv=true;}
+    if(mv){track=false;follow=null;}
     if(keys.q)cam.yaw+=dt*1.2;if(keys.e)cam.yaw-=dt*1.2;if(keys['+']||keys['='])cam.dist=clamp(cam.dist*(1-dt),16,640);if(keys['-'])cam.dist=clamp(cam.dist*(1+dt),16,640);}
 
-  // ---------- выбор оленя и места ----------
+  // ---------- карточка оленя ----------
   var ray=new T.Raycaster(),ndc=new T.Vector2();
   function pick(cx,cy){var r=el.getBoundingClientRect();ndc.set((cx-r.left)/r.width*2-1,-(cy-r.top)/r.height*2+1);ray.setFromCamera(ndc,camera);
-    if(pickMode){var hit=ray.intersectObject(Wd.terrain)[0];if(hit){var x=hit.point.x+CX,z=hit.point.z+CZ;if(tryMoveTo(x,z)){pickMode=false;$('a-pick').setAttribute('aria-pressed','false');}}return;}
     var best=null;herds.forEach(function(h){var hs=ray.intersectObject(h.body);if(hs.length&&(!best||hs[0].distance<best.dist))best={h:h,d:h.deer[hs[0].instanceId],dist:hs[0].distance};});
     if(best&&best.d)showCard(best.d,best.h);else $('card').hidden=true;}
-  function famOf(id){return fams.filter(function(f){return f.id===id;})[0];}
-  function ageTerm(d){if(d.calf)return S.m<6.5&&S.m>=4?'пыжик, оленёнок этого года':'неблюй, оленёнок этого года';if(d.yearling)return d.sex==='f'?'годовалая самка':'годовалый бычок';
-    if(d.sex==='f')return 'важенка, взрослая самка';return d.role==='sled'?'ездовой бык':'хор, бык-производитель';}
+  function ageTerm(d){if(d.calf)return S.m<6.5&&S.m>=4?'[пыжик], оленёнок этого года':'[неблюй], оленёнок этого года';
+    if(d.sex==='f')return '[важенка], взрослая самка';return d.role==='sled'?'[ездовой бык]':'[хор], бык-производитель';}
   var shown=null;
-  function showCard(d,h){shown={d:d,h:h};emit('card',{d:d});var f=h.fam,a=d.adopted;
-    var title=d.name?d.name:(d.calf?'Оленёнок':'Олень без бирки опекуна');
-    var rows='<dt>Семья</dt><dd>'+f.ru+' · '+f.hname+'</dd><dt>Кто это</dt><dd>'+termify(ageTerm(d))+(d.white?' · белый олень':'')+'</dd>'+
-      (d.born?'<dt>Год рождения</dt><dd>'+d.born+'</dd>':'')+'<dt>Метка</dt><dd>знак семьи в игре «'+f.mark+'»'+(d.tag?' и бирка № '+d.tag:'')+'</dd>'+
-      (a?'<dt>Опекун</dt><dd>'+(d.mine?'вы, '+(a.adopter||''):a.adopter)+'</dd>':'')+'<dt>Сейчас</dt><dd>'+(h.moving?'идёт в аргише':'пасётся')+', сытость стада '+Math.round(h.sat*100)+'%</dd>';
+  function showCard(d,h){shown=d;var f=h.fam,a=d.adopted;
+    var title=d.name?esc(d.name):(d.calf?'Оленёнок':'Олень без бирки опекуна');
+    var rows='<dt>Семья</dt><dd>'+f.ru+' · '+f.hname+'</dd><dt>Кто это</dt><dd>'+termify(ageTerm(d)+(d.white?' · [белый олень]':''))+'</dd>'+
+      (d.born?'<dt>Год рождения</dt><dd>'+d.born+'</dd>':'')+'<dt>Метка</dt><dd>знак семьи в игре «'+f.mark+'»'+(d.tag?' и бирка № '+esc(d.tag):'')+'</dd>'+
+      (a?'<dt>Опекун</dt><dd>'+(d.mine?'вы'+(a.adopter?', '+esc(a.adopter):''):esc(a.adopter))+'</dd>':'')+'<dt>Сейчас</dt><dd>'+(h.moving?'идёт в аргише':'пасётся')+'</dd>';
     $('card').innerHTML='<div class="hd"><span class="nm">'+title+'</span><button type="button" class="x" id="cd-x" aria-label="Закрыть">✕</button></div><dl>'+rows+'</dl>'+
-      '<div class="acts" style="flex-direction:row;flex-wrap:wrap"><button type="button" class="btn q" id="cd-follow">Следить камерой</button>'+(!a&&!d.calf&&!myDeer?'<button type="button" class="btn" id="cd-adopt">Сделать своим цифровым оленем</button>':'')+'</div>';
-    $('card').hidden=false;$('cd-x').onclick=function(){$('card').hidden=true;};
-    $('cd-follow').onclick=function(){follow=d;cam.dist=Math.min(cam.dist,45);};
-    var ad=$('cd-adopt');if(ad)ad.onclick=function(){openTab('my');prefill={family:f.id,deer:d};renderMy();};}
+      '<div class="acts row"><button type="button" class="btn q" id="cd-follow">Следить камерой</button>'+(!a&&!d.calf&&!myDeer?'<button type="button" class="btn" id="cd-adopt">Сделать своим цифровым оленем</button>':'')+
+      '<button type="button" class="btn q only-phone" id="cd-back">К заданию</button></div>';
+    $('card').hidden=false;$('cd-x').onclick=$('cd-back').onclick=function(){$('card').hidden=true;};
+    $('cd-follow').onclick=function(){follow=d;track=false;cam.dist=Math.min(cam.dist,45);};
+    var ad=$('cd-adopt');if(ad)ad.onclick=function(){$('card').hidden=true;openMy({family:f.id,deer:d});};}
+  function focusDeer(d,h){follow=d;track=false;flyTo(d.x,d.z,36);showCard(d,h);}
 
-  // ---------- боковая панель ----------
+  // ---------- «Мой олень»: найти по бирке или завести цифрового ----------
   var prefill=null;
-  function openTab(t){['q','fam','ad','my'].forEach(function(x){$('tab-'+x).setAttribute('aria-selected',String(x===t));$('tb-'+x).hidden=x!==t;});if(window.innerWidth<=760)toggleMob('side',true);}
-  [].forEach.call(document.querySelectorAll('.tabs button'),function(b){b.addEventListener('click',function(){openTab(b.getAttribute('data-tab'));});});
-  function renderSide(){
-    $('tb-fam').innerHTML=fams.map(function(f){var c=f.herd.counts();return '<button type="button" class="famrow" id="fr-'+f.id+'" data-f="'+f.id+'"><i style="background:'+f.color+'"></i><span>'+f.ru+(f===me?' · вы':'')+'<small>'+f.area+'</small><small>'+f.route+'</small><small>Источники: '+f.src+'</small></span><span class="n">'+c.all+'</span></button>';}).join('')+
-      '<p class="sample">Фамилии и районы кочёвок — по опубликованным источникам; маршруты в игре упрощены. Размеры стад, знаки семей и опекуны — образцы. Номер бирки показывает, что у оленя есть опекун.</p>';
-    var list=[];herds.forEach(function(h){h.deer.forEach(function(d){if(d.adopted)list.push({d:d,h:h});});});
-    list.sort(function(a,b){return (b.d.mine?1:0)-(a.d.mine?1:0)||String(a.d.tag).localeCompare(String(b.d.tag));});
-    $('tb-ad').innerHTML='<div class="f"><label for="ad-find">Найти оленя по номеру бирки</label><div class="row2"><input id="ad-find" inputmode="numeric" placeholder="например, 0427"><button type="button" class="btn q" id="ad-go">Найти</button></div></div>'+
-      list.map(function(x,i){var d=x.d;return '<div class="deerrow'+(d.mine?' mine':'')+'"><span class="tg">'+(d.tag||'—')+'</span><span>'+(d.name||'Олень')+'<small>'+x.h.fam.ru+' · '+(d.mine?'ваш цифровой олень':(d.adopted.adopter||''))+'</small></span><button type="button" class="linkbtn" id="ad-show-'+i+'" data-i="'+i+'">Показать</button></div>';}).join('')+
-      '<p class="sample">Опекуны — образцы. Опекун с сайта найдёт здесь своего оленя по номеру из сертификата.</p>';
-    [].forEach.call($('tb-ad').querySelectorAll('[data-i]'),function(b){b.onclick=function(){var x=list[+b.getAttribute('data-i')];focusDeer(x.d,x.h);};});
-    $('ad-go').onclick=findTag;$('ad-find').onkeydown=function(e){if(e.key==='Enter')findTag();};
-    [].forEach.call($('tb-fam').querySelectorAll('[data-f]'),function(b){b.onclick=function(){var f=famOf(b.getAttribute('data-f'));flyTo(f.herd.cx,f.herd.cz,80);};});
-    renderMy();}
-  function focusDeer(d,h){follow=d;flyTo(d.x,d.z,36);showCard(d,h);}
-  function findTag(){var v=($('ad-find').value||'').trim().replace(/^№\s*/,'');var found=null;herds.forEach(function(h){h.deer.forEach(function(d){if(d.tag&&String(d.tag).toLowerCase()===v.toLowerCase())found={d:d,h:h};});});
-    if(found)focusDeer(found.d,found.h);else say('Оленя с биркой «'+v.replace(/</g,'')+'» в стадах нет. Проверьте номер в сертификате.','bad');}
-  function renderMy(){var b=$('tb-my');
-    if(myDeer){var f=fams.filter(function(x){return x.herd.deer.indexOf(myDeer)>=0;})[0]||me;
-      b.innerHTML='<h3>'+myDeer.name+' · № '+myDeer.tag+'</h3><p class="sample">Ваш цифровой олень кочует со стадом семьи '+f.ru.replace('Семья ','')+' ('+f.hname+'). Он не болеет и не теряется: волки и голод его не касаются.</p>'+
-        '<div class="acts"><button type="button" class="btn" id="my-show">Показать моего оленя</button><button type="button" class="btn q" id="my-follow">Следить камерой</button><button type="button" class="btn q" id="my-drop">Отказаться от цифрового оленя</button></div><p class="sample" id="my-confirm"></p>';
-      $('my-show').onclick=function(){focusDeer(myDeer,f.herd);};$('my-follow').onclick=function(){follow=myDeer;cam.dist=40;};
-      $('my-drop').onclick=function(){var c=$('my-confirm');if(c.dataset.ask){store('yh-tundra-my',null);myDeer.mine=false;myDeer.adopted=null;if(!my.siteTag&&!my.fromHerd)f.herd.remove(myDeer);myDeer=null;my=null;renderSide();say('Цифровой олень снова просто олень в стаде.','info');}
-        else{c.dataset.ask='1';c.innerHTML='Нажмите ещё раз, чтобы подтвердить.';}};return;}
-    var pf=prefill||{},fopts=fams.map(function(f){return '<option value="'+f.id+'"'+((pf.family||me.id)===f.id?' selected':'')+'>'+f.ru+' · '+f.hname+'</option>';}).join('');
-    var nm=D.deerNames[Math.floor(L.rnd()*D.deerNames.length)];
-    b.innerHTML='<p>Каждый опекун получает цифрового оленя на Ямале. Он кочует со стадом семьи весь год, и его всегда можно найти на карте.</p>'+
-      (pf.deer?'<p class="sample">Вы выбрали оленя из стада. Дайте ему имя.</p>':'')+
-      '<div class="f"><label for="my-name">Ваше имя</label><input id="my-name" autocomplete="given-name" placeholder="как подписать опекуна"></div>'+
+  function openMy(pf){prefill=pf||null;renderMy();$('mydlg').hidden=false;if(!touch){var i=$('my-body').querySelector('input,button');if(i)i.focus();}}
+  function closeMy(){$('mydlg').hidden=true;prefill=null;}
+  $('b-my').onclick=function(){openMy();};$('my-close').onclick=closeMy;
+  function findByTag(v){var found=null;v=v.toLowerCase();herds.forEach(function(h){h.deer.forEach(function(d){if(d.tag&&String(d.tag).toLowerCase()===v)found={d:d,h:h};});});return found;}
+  function gotMine(){store('yh-tundra-my',my);syncDeerLabels();renderTop();closeMy();if(myDeer)focusDeer(myDeer,famOfDeer(myDeer).herd);}
+  function dropMine(){var d=myDeer,f=famOfDeer(d);store('yh-tundra-my',null);d.mine=false;d.adopted=d.adopted0||null;
+    if(!my.siteTag){if(my.fromHerd){d.tag=null;d.name=null;}else f.herd.remove(d);}
+    if(shown===d)$('card').hidden=true;if(follow===d)follow=null;myDeer=null;my=null;syncDeerLabels();renderTop();renderMy();}
+  function renderMy(){var b=$('my-body'),pf=prefill;
+    if(myDeer){var f=famOfDeer(myDeer);
+      b.innerHTML='<h3>'+esc(myDeer.name||'Олень')+' · № '+esc(myDeer.tag)+'</h3><p>Ваш цифровой олень кочует со стадом семьи '+short(f)+' ('+f.hname+'). На карте он отмечен красной меткой.</p>'+
+        '<div class="acts"><button type="button" class="btn big" id="my-show">Показать моего оленя</button><button type="button" class="btn q" id="my-drop">Отказаться от цифрового оленя</button></div><p class="sample" id="my-confirm"></p>';
+      $('my-show').onclick=function(){var d=myDeer;closeMy();focusDeer(d,famOfDeer(d).herd);};
+      $('my-drop').onclick=function(){var c=$('my-confirm');if(c.dataset.ask)dropMine();else{c.dataset.ask='1';c.textContent='Нажмите ещё раз, чтобы подтвердить.';}};return;}
+    var nm=D.deerNames[Math.floor(Math.random()*D.deerNames.length)];
+    var fopts=fams.map(function(f){return '<option value="'+f.id+'"'+(((pf&&pf.family)||me.id)===f.id?' selected':'')+'>'+f.ru+' · '+f.hname+'</option>';}).join('');
+    var form='<div class="f"><label for="my-name">Ваше имя</label><input id="my-name" autocomplete="given-name" placeholder="как подписать опекуна"></div>'+
       '<div class="f"><label for="my-deer">Имя оленя</label><input id="my-deer" value="'+nm+'"></div>'+
-      '<div class="row2"><div class="f"><label for="my-fam">Стадо</label><select id="my-fam"'+(pf.deer?' disabled':'')+'>'+fopts+'</select></div><div class="f"><label for="my-sex">Пол</label><select id="my-sex"'+(pf.deer?' disabled':'')+'><option value="f">важенка</option><option value="m">бык</option></select></div></div>'+
-      '<div class="f"><label for="my-tag">Номер с сайта, если вы уже опекун</label><input id="my-tag" placeholder="необязательно, например 0427"></div>'+
-      '<button type="button" class="btn" id="my-make">Получить цифрового оленя</button><p class="sample" id="my-err"></p>';
-    $('my-make').onclick=function(){var name=$('my-name').value.trim(),dn=$('my-deer').value.trim()||nm,tag=$('my-tag').value.trim().replace(/^№\s*/,'');
-      if(!name){$('my-err').textContent='Впишите своё имя: оно будет подписью опекуна.';$('my-name').focus();return;}
-      var fam=$('my-fam').value,sex=$('my-sex').value,existing=null;
-      if(tag){herds.forEach(function(h){h.deer.forEach(function(d){if(d.tag===tag){existing={d:d,h:h};}});});if(!existing){$('my-err').textContent='Оленя с биркой '+tag.replace(/</g,'')+' в стадах нет. Оставьте поле пустым, чтобы получить нового.';return;}}
-      var newTag=tag||('Ц-'+String(1000+Math.floor(L.rnd()*9000)));
-      if(existing){existing.d.mine=true;existing.d.adopted={adopter:name};myDeer=existing.d;fam=existing.h.fam.id;}
-      else if(pf.deer){myDeer=pf.deer;myDeer.mine=true;myDeer.tag=newTag;myDeer.name=dn;myDeer.adopted={adopter:name};fam=pf.family;}
-      else{my={name:name,deerName:dn,family:fam,sex:sex,tag:newTag};attachMine();}
-      if(myDeer&&!my){my={name:name,deerName:myDeer.name||dn,family:fam,sex:myDeer.sex,tag:myDeer.tag,siteTag:!!existing,fromHerd:!!pf.deer};}
-      if(myDeer&&pf.deer){myDeer.name=dn;my.deerName=dn;}
-      store('yh-tundra-my',my);prefill=null;emit('mydeer');renderSide();openTab('my');say('У вас появился цифровой олень: '+my.deerName+', № '+my.tag+'. Он кочует со стадом семьи '+famOf(fam).ru.replace('Семья ','')+' ('+famOf(fam).hname+').','good');if(myDeer)focusDeer(myDeer,famOf(fam).herd);};}
+      '<div class="row2"><div class="f"><label for="my-fam">Стадо</label><select id="my-fam"'+(pf?' disabled':'')+'>'+fopts+'</select></div><div class="f"><label for="my-sex">Пол</label><select id="my-sex"'+(pf?' disabled':'')+'><option value="f"'+(pf&&pf.deer.sex==='f'?' selected':'')+'>важенка</option><option value="m"'+(pf&&pf.deer.sex==='m'?' selected':'')+'>бык</option></select></div></div>'+
+      '<button type="button" class="btn big" id="my-make">Получить цифрового оленя</button><p class="sample err" id="my-err2" role="alert"></p>';
+    b.innerHTML=pf?'<p>Вы выбрали оленя из стада. Дайте ему имя.</p>'+form:
+      '<p>Каждый опекун получает цифрового оленя на Ямале. Он кочует со стадом семьи весь год, и его всегда можно найти на карте.</p>'+
+      '<div class="f"><label for="my-tag">Номер бирки из сертификата</label><input id="my-tag" inputmode="numeric" autocomplete="off" placeholder="например, 0427"></div>'+
+      '<button type="button" class="btn big" id="my-find">Найти моего оленя</button><p class="sample err" id="my-err" role="alert"></p>'+
+      '<details><summary>Нет бирки? Завести цифрового оленя</summary><div>'+form+'</div></details>'+
+      '<p class="sample">Опекуны и олени в игре — образцы. Опекун с сайта найдёт здесь своего оленя по номеру из сертификата.</p>';
+    if(!pf){var find=function(){var v=($('my-tag').value||'').trim().replace(/^№\s*/,'');
+        if(!v){$('my-err').textContent='Впишите номер бирки из сертификата.';$('my-tag').focus();return;}
+        var x=findByTag(v);if(!x){$('my-err').textContent='Оленя с биркой «'+v+'» в стадах нет. Проверьте номер в сертификате.';return;}
+        var d=x.d;d.adopted0=d.adopted;d.mine=true;d.adopted={adopter:''};myDeer=d;my={name:'',deerName:d.name,family:x.h.fam.id,sex:d.sex,tag:d.tag,siteTag:true};gotMine();};
+      $('my-find').onclick=find;$('my-tag').onkeydown=function(e){if(e.key==='Enter')find();};}
+    $('my-make').onclick=function(){var name=$('my-name').value.trim(),dn=$('my-deer').value.trim()||nm;
+      if(!name){$('my-err2').textContent='Впишите своё имя: оно будет подписью опекуна.';$('my-name').focus();return;}
+      var tag='Ц-'+String(1000+Math.floor(Math.random()*9000));
+      if(pf){var d=pf.deer;d.adopted0=d.adopted;d.mine=true;d.tag=tag;d.name=dn;d.adopted={adopter:name};myDeer=d;my={name:name,deerName:dn,family:pf.family,sex:d.sex,tag:tag,fromHerd:true};}
+      else{my={name:name,deerName:dn,family:$('my-fam').value,sex:$('my-sex').value,tag:tag};attachMine();if(!myDeer){my=null;$('my-err2').textContent='В этом стаде нет места. Выберите другое стадо.';return;}}
+      gotMine();};}
 
   // ---------- подписи на карте ----------
   var labelsEl=$('labels'),labels=[];
@@ -1300,360 +1333,82 @@ sources:[
   addLabel('↓ Хэнская сторона: лесные пастбища за Обью','water',function(){return [330,1,632];},700);
   (function(){var bp=D.railway.p[D.railway.bridge];addLabel('мост через Юрибей · 3,9 км','town',function(){return [bp[0],2,bp[1]];},200);})();
   addLabel('Полярный Урал','peak',function(){return [80,30,520];},900);
-  addLabel('по календарю каслания','peak',function(){return [calRing.position.x+CX,calRing.position.y+1.2,calRing.position.z+CZ];},420).when=function(){return Math.hypot(calRing.position.x+CX-me.camp.x,calRing.position.z+CZ-me.camp.z)>14;};
   addLabel('Ж/д Обская — Бованенково','town',function(){var p=D.railway.p[4];return [p[0],2,p[1]];},260);
   fams.forEach(function(f){addLabel(f.ru+' · '+f.hname,'camp',function(){return [f.camp.x,Wd.groundAt(f.camp.x,f.camp.z)+5,f.camp.z];},900,function(e){e.style.setProperty('--c',f.color);});});
   var deerLabels=[];
   function syncDeerLabels(){deerLabels.forEach(function(o){o.e.remove();labels.splice(labels.indexOf(o),1);});deerLabels=[];
-    herds.forEach(function(h){h.deer.forEach(function(d){if(!d.adopted)return;var o=addLabel((d.mine?'Ваш олень · ':'№ '+d.tag+' · ')+(d.name||''),'deer'+(d.mine?' mine':''),function(){return [d.x,Wd.groundAt(d.x,d.z)+(d.mine?3.4:2.9),d.z];},d.mine?2000:140);o.deer=d;deerLabels.push(o);});});}
+    herds.forEach(function(h){h.deer.forEach(function(d){if(!d.adopted)return;var o=addLabel((d.mine?'Ваш олень · ':'№ '+d.tag+' · ')+(d.name||''),'deer'+(d.mine?' mine':''),function(){return [d.x,Wd.groundAt(d.x,d.z)+(d.mine?3.4:2.9),d.z];},d.mine?2000:140);deerLabels.push(o);});});}
   var vtmp=new T.Vector3();
   function placeLabels(){var w=view.clientWidth,h=view.clientHeight;labels.forEach(function(o){var p=o.get();vtmp.set(p[0]-CX,p[1],p[2]-CZ);var dist=vtmp.distanceTo(camera.position);
-      if(dist>o.maxD||(o.when&&!o.when())||(o.deer&&herds.every(function(hh){return hh.deer.indexOf(o.deer)<0;}))){o.e.style.display='none';return;}
+      if(dist>o.maxD){o.e.style.display='none';return;}
       vtmp.project(camera);if(vtmp.z>1||vtmp.x<-1.1||vtmp.x>1.1||vtmp.y<-1.1||vtmp.y>1.1){o.e.style.display='none';return;}
       o.e.style.display='';o.e.style.left=((vtmp.x+1)/2*w).toFixed(0)+'px';o.e.style.top=((1-vtmp.y)/2*h).toFixed(0)+'px';});}
 
-  // ---------- мини-карта ----------
-  var mc=$('minimap'),mx=mc.getContext('2d'),mScale=mc.width/Wd.W,landP=new Path2D(window.YH_LAND),nbP=new Path2D(window.YH_NEIGHBOR),showL=false;
-  $('m-lichen').onclick=function(){showL=!showL;this.setAttribute('aria-pressed',String(showL));drawMini();};
+  // ---------- карта (открывается кнопкой «Карта») ----------
+  var mc=$('minimap'),mx=mc.getContext('2d'),mScale=mc.width/Wd.W,landP=new Path2D(window.YH_LAND),nbP=new Path2D(window.YH_NEIGHBOR);
   function drawMini(){mx.setTransform(1,0,0,1,0,0);mx.fillStyle='#16324a';mx.fillRect(0,0,mc.width,mc.height);mx.setTransform(mScale,0,0,mScale,0,0);
     mx.fillStyle='#2c4c63';mx.fill(nbP);mx.fillStyle='#4a6f88';mx.fill(landP);
-    if(showL){for(var j=0;j<CH;j++)for(var i=0;i<CW;i++){var v=lich[j*CW+i];if(v<0)continue;mx.fillStyle='rgba('+Math.round(220-120*v)+','+Math.round(120+100*v)+',90,.75)';mx.fillRect(i*CS,j*CS,CS,CS);}}
     mx.strokeStyle='#9cc6e0';mx.lineWidth=1.6;D.rivers.forEach(function(r){mx.beginPath();r.p.forEach(function(p,i){i?mx.lineTo(p[0],p[1]):mx.moveTo(p[0],p[1]);});mx.stroke();});
     mx.strokeStyle='#c9a23a';mx.lineWidth=1.4;mx.setLineDash([3,3]);mx.beginPath();D.railway.p.forEach(function(p,i){i?mx.lineTo(p[0],p[1]):mx.moveTo(p[0],p[1]);});mx.stroke();mx.setLineDash([]);
     mx.strokeStyle='rgba(226,163,50,.7)';mx.lineWidth=1.2;mx.setLineDash([2,4]);mx.beginPath();for(var u=0;u<=1.001;u+=.01){var p=loopPos(me,u);u?mx.lineTo(p[0],p[1]):mx.moveTo(p[0],p[1]);}mx.stroke();mx.setLineDash([]);
     fams.forEach(function(f){mx.fillStyle=f.color;mx.beginPath();mx.arc(f.herd.cx,f.herd.cz,f===me?6:4.5,0,6.3);mx.fill();});
     if(myDeer){mx.fillStyle='#FF5A3C';mx.beginPath();mx.arc(myDeer.x,myDeer.z,3.5,0,6.3);mx.fill();}
     mx.strokeStyle='#fff';mx.lineWidth=1.5;var r=cam.dist*.55;mx.save();mx.translate(cam.tx+CX,cam.tz+CZ);mx.rotate(-cam.yaw);mx.strokeRect(-r*.7,-r*.5,r*1.4,r*1);mx.restore();}
-  mc.addEventListener('click',function(e){var r=mc.getBoundingClientRect();var x=(e.clientX-r.left)/r.width*Wd.W,z=(e.clientY-r.top)/r.height*Wd.H;follow=null;flyTo(x,z,cam.dist);});
+  mc.addEventListener('click',function(e){var r=mc.getBoundingClientRect();var x=(e.clientX-r.left)/r.width*Wd.W,z=(e.clientY-r.top)/r.height*Wd.H;follow=null;track=false;flyTo(x,z,cam.dist);});
+  function toggleMap(on){var m=$('mini');if(on==null)on=m.hidden;m.hidden=!on;$('b-map').setAttribute('aria-pressed',String(on));if(on)drawMini();}
+  $('b-map').onclick=function(){toggleMap();};
+  $('famchips').innerHTML=fams.map(function(f){return '<button type="button" data-f="'+f.id+'" title="'+f.ru+' · '+f.hname+'"><i style="background:'+f.color+'"></i>'+short(f)+'</button>';}).join('');
+  $('famchips').addEventListener('click',function(e){var b=e.target.closest('button[data-f]');if(!b)return;var f=famOf(b.getAttribute('data-f'));follow=null;track=f===me;flyTo(f.herd.cx,f.herd.cz,90);if(phone())toggleMap(false);});
 
-  // ---------- скорость, мобильные панели, словарь ----------
-  function setSpeed(v){S.speed=v;[0,1,3,8].forEach(function(x){$('sp'+x).setAttribute('aria-pressed',String(x===v));});}
-  [0,1,3,8].forEach(function(x){$('sp'+x).onclick=function(){setSpeed(x);};});
-  function toggleMob(p,force){['camp','side','mini'].forEach(function(q){var on=q===p?(force!=null?force:!$(q).classList.contains('open')):false;$(q).classList.toggle('open',on);$('mn-'+q).setAttribute('aria-pressed',String(on));});}
-  [].forEach.call(document.querySelectorAll('#mobnav button'),function(b){b.onclick=function(){toggleMob(b.getAttribute('data-p'));};});
-  function renderGloss(){var mi=Math.floor(S.m)%12,h='';
-    if(G.calendar&&G.calendar.length){h+='<h3>Календарь каслания</h3><div style="overflow-x:auto"><table class="cal"><thead><tr><th>Месяц</th><th>Где стадо</th><th>Что происходит</th></tr></thead><tbody>'+
-      G.calendar.map(function(r,i){return '<tr class="'+(i===mi?'now':'')+'"><td>'+r.m+'</td><td>'+r.where+'</td><td>'+r.what+'</td></tr>';}).join('')+'</tbody></table></div>';}
-    var cats={};(G.terms||[]).forEach(function(t){(cats[t.c||'Разное']=cats[t.c||'Разное']||[]).push(t);});
-    Object.keys(cats).forEach(function(c){h+='<h3>'+c+'</h3><dl class="gl">'+cats[c].map(function(t){return '<dt>'+t.t+'</dt><dd>'+t.d+(t.n?' <small>(ненецк. '+t.n+')</small>':'')+'</dd>';}).join('')+'</dl>';});
-    if(G.sources&&G.sources.length)h+='<h3>Источники</h3><ol class="src">'+G.sources.map(function(s){return '<li><a href="'+s.u+'" target="_blank" rel="noopener">'+s.t+'</a></li>';}).join('')+'</ol>';
-    if(!h)h='<p class="sample">Словарь заполняется.</p>';$('g-body').innerHTML=h;}
-  $('b-gloss').onclick=function(){renderGloss();$('gloss').hidden=false;emit('gloss');};$('g-close').onclick=function(){$('gloss').hidden=true;};
-  $('gloss').addEventListener('click',function(e){if(e.target===$('gloss'))$('gloss').hidden=true;});
-  var started=false;
   // ---------- сохранение прогресса (в браузере этого зрителя) ----------
-  var SAVE_KEY='yh-tundra-save-v2',lastSaveMo=-1;
-  function readSave(){try{var r=localStorage.getItem(SAVE_KEY);return r?JSON.parse(r):null;}catch(e){return null;}}
-  function r1(v){return Math.round(v*10)/10;}
-  function snapshot(){var q=window.YH_QUESTS&&window.YH_QUESTS.exportState?window.YH_QUESTS.exportState():null;
-    var bin='';for(var k=0;k<lich.length;k++)bin+=String.fromCharCode(lich[k]<0?255:Math.round(clamp(lich[k],0,1)*254));
-    return {v:1,at:Date.now(),
-      S:{m:S.m,year:S.year,food:S.food,wood:S.wood,warmth:S.warmth,jobs:S.jobs,storm:S.storm,crust:S.crust,born:S.born,lost:S.lost,startCount:S.startCount,flags:S.flags,dayN:S.dayN,dayAcc:S.dayAcc},
-      fams:fams.map(function(f){var c=f.camp,h=f.herd;return {id:f.id,camp:{x:c.x,z:c.z,path:c.path,prog:c.prog},
-        herd:{cx:h.cx,cz:h.cz,sat:h.sat,health:h.health,gx:h.gx||null,gz:h.gz||null,
-          deer:h.deer.map(function(d){return {x:r1(d.x),z:r1(d.z),s:d.sex,c:d.calf?1:0,sc:Math.round(d.scale*100)/100,t:d.tag,n:d.name,a:d.adopted,mi:d.mine?1:0,r:d.role,b:d.born,w:d.white?1:0,y:d.yearling?1:0,co:d.coat};})}};}),
-      lich:btoa(bin),q:q,cam:{tx:cam.tx,tz:cam.tz,dist:cam.dist,yaw:cam.yaw,pitch:cam.pitch}};}
-  function saveNow(){if(!started)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(snapshot()));$('saveinfo-t').textContent='Сохранено: '+D.months[Math.floor(S.m)%12]+', год '+S.year+'.';}
-    catch(e){$('saveinfo-t').textContent='Сохранить не удалось: браузер не даёт доступа к хранилищу.';}}
-  function restore(o){if(!o||o.v!==1||!o.S||!o.fams)return false;
-    var keep=S.speed;for(var k in o.S)S[k]=o.S[k];S.speed=keep;
-    fams.forEach(function(f){var sf=null;o.fams.forEach(function(x){if(x.id===f.id)sf=x;});if(!sf)return;
-      var c=f.camp,h=f.herd;c.path=null;c.packed=false;c.x=sf.camp.x;c.z=sf.camp.z;
-      if(sf.camp.path&&sf.camp.path.length>1){c.travel(sf.camp.path);c.prog=sf.camp.prog||0;}
-      h.cx=sf.herd.cx;h.cz=sf.herd.cz;h.sat=sf.herd.sat;h.health=sf.herd.health;h.gx=sf.herd.gx;h.gz=sf.herd.gz;h.moving=!!c.path;
-      h.restore(sf.herd.deer);c.setCover(S.m);});
-    myDeer=null;herds.forEach(function(h){h.deer.forEach(function(d){if(d.mine){if(my&&!myDeer)myDeer=d;else d.mine=false;}});});
-    if(my&&!myDeer)attachMine();
-    try{var bin=atob(o.lich);for(var k2=0;k2<lich.length&&k2<bin.length;k2++){var b=bin.charCodeAt(k2);lich[k2]=b===255?-1:b/254;}}catch(e){}
-    L.wolves.length=0;
-    if(o.q&&window.YH_QUESTS&&window.YH_QUESTS.importState)window.YH_QUESTS.importState(o.q);
-    if(o.cam){cam.tx=o.cam.tx;cam.tz=o.cam.tz;cam.dist=o.cam.dist;cam.yaw=o.cam.yaw;cam.pitch=o.cam.pitch;}
-    S.lastMo=-1;lastSaveMo=Math.floor(S.m);Wd.setSeason(S.m,true);renderJobs();renderSide();syncDeerLabels();placeRing();renderTop();renderNext();drawMini();return true;}
+  var SAVE_KEY='yh-tundra-save-v3',started=false;
+  function readSave(){var o=store(SAVE_KEY);return o&&o.v===3&&o.step===Math.floor(o.step)&&o.step>=0&&o.step<=N?o:null;}
+  // после действия шаг считается пройденным: при возврате игрок попадёт на следующее задание
+  function saveNow(){if(!started)return;store(SAVE_KEY,{v:3,step:S.phase==='done'?S.step+1:S.phase==='end'?N:S.step,calves:S.calves,at:Date.now()});}
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')saveNow();});
   window.addEventListener('pagehide',saveNow);
-  $('b-reset').onclick=function(){var b=this;if(!b.dataset.ask){b.dataset.ask='1';b.textContent='Точно? Нажмите ещё раз';setTimeout(function(){delete b.dataset.ask;b.textContent='Начать заново';},4000);return;}
-    started=false;try{localStorage.removeItem(SAVE_KEY);}catch(e){}location.reload();};
+  function begin(step){started=true;placeWorld(step);if(step>=N){S.phase='end';showEnd();}else S.phase='task';saveNow();renderCard();renderTop();}
+  function twice(b,ask,fn){if(!b.dataset.ask){var was=b.textContent;b.dataset.ask='1';b.textContent=ask;setTimeout(function(){delete b.dataset.ask;b.textContent=was;},6000);return;}delete b.dataset.ask;fn();}
+  $('b-reset').onclick=function(){var b=this;twice(b,'Точно? Нажмите ещё раз',function(){b.textContent='Начать заново';S.calves=0;begin(0);});};
   var saved=readSave();
-  if(saved&&saved.v===1&&saved.S){$('i-start').textContent='Продолжить: '+D.months[Math.floor(saved.S.m)%12]+', год '+saved.S.year;$('i-new').hidden=false;$('i-my').hidden=true;}
-  function freshStart(){say('Апрель. Стойбище семьи '+me.ru.replace('Семья ','')+' на зимних пастбищах. Скоро весеннее каслание на север.','info');if(window.YH_HELP)setTimeout(function(){window.YH_HELP.onStart(true);},250);}
-  $('i-start').onclick=function(){$('intro').hidden=true;started=true;if(saved&&restore(saved))say('Игра продолжается с того места, где вы остановились.','info');else freshStart();};
-  $('i-new').onclick=function(){var b=this;if(!b.dataset.ask){b.dataset.ask='1';b.textContent='Сохранение удалится. Нажмите ещё раз';return;}try{localStorage.removeItem(SAVE_KEY);}catch(e){}saved=null;$('intro').hidden=true;started=true;freshStart();};
-  $('i-my').onclick=function(){$('intro').hidden=true;started=true;freshStart();openTab('my');};
+  if(saved){$('i-start').textContent=saved.step>=N?'Продолжить: итоги года':'Продолжить: шаг '+(saved.step+1)+' из '+N;$('i-new').hidden=false;$('i-my').hidden=true;}
+  $('i-start').onclick=function(){$('intro').hidden=true;S.calves=saved?saved.calves||0:0;begin(saved?saved.step:0);};
+  $('i-new').onclick=function(){twice(this,'Прогресс удалится. Нажмите ещё раз',function(){$('intro').hidden=true;S.calves=0;begin(0);});};
+  $('i-my').onclick=function(){$('intro').hidden=true;begin(0);openMy();};
 
   // ---------- главный цикл ----------
-  renderJobs();renderSide();syncDeerLabels();placeRing();Wd.setSeason(S.m,true);renderTop();renderNext();drawMini();applyCam();
-  var lastT=performance.now(),acc=0,uiAcc=0,lastAdopted=-1;
-  function frame(now){var dt=Math.min(.1,(now-lastT)/1000);lastT=now;var t=now/1000;
-    var run=started&&S.speed>0;
-    if(run){var dm=dt*S.speed/MONTH_SEC;S.m+=dm;S.dayAcc+=dm*30;
-      while(S.dayAcc>=1){S.dayAcc-=1;day();}
-      if(S.m>=12){S.m-=12;S.year++;}
-      if(Math.floor(S.m)===3&&!S.flags['yr'+S.year]&&S.year>1){S.flags['yr'+S.year]=1;var c=me.herd.counts();emit('year',{count:c.all,start:S.startCount});say('Год кочевья позади. В стаде '+c.all+' оленей (было '+S.startCount+'), родилось '+S.born+', потеряно '+S.lost+'.','info');S.startCount=c.all;S.born=0;S.lost=0;}
-      Wd.setSeason(S.m);if(Math.floor(S.m)!==lastSaveMo){lastSaveMo=Math.floor(S.m);saveNow();}var mo=Math.floor(S.m);if(mo!==S.lastMo){S.lastMo=mo;camps.forEach(function(c){if(!c.packed)c.setCover(S.m);});}}
-    var simDt=run?dt*S.speed:0,daySec=MONTH_SEC/30;
+  window.addEventListener('resize',resize);resize();
+  syncDeerLabels();Wd.setSeason(S.m,true);renderTop();renderCard();applyCam();
+  var lastT=performance.now(),uiAcc=0;
+  // шаг до .25 с: на слабом устройстве действие не растягивается надолго
+  function frame(now){var dt=Math.min(.25,(now-lastT)/1000);lastT=now;var t=now/1000;
+    // время идёт только пока играется действие шага
+    if(anim){anim.t+=dt;var k=clamp(anim.t/anim.dur,0,1);S.m=anim.m0+(anim.m1-anim.m0)*(anim.late?k*k:k);Wd.setSeason(S.m);if(anim.tick)anim.tick(k);if(k>=1&&!me.camp.path)finishAct();}
     // стойбища и стада
-    fams.forEach(function(f){var sc0=Wd.snowCover(S.m),gr0=Wd.greenness(S.m),spd=((sc0>.5?20:gr0>.5?5:10)/daySec)*(S.storm?.2:1);var arrived=f.camp.update(simDt,t,spd,f.herd,f===me?S.jobs.guard:2);
-      var h=f.herd;if(f.camp.path){var q=f.camp.pointAt(f.camp.prog-16);h.vx=q[0]-h.cx;h.vz=q[1]-h.cz;var l=Math.hypot(h.vx,h.vz)||1;h.vx/=l;h.vz/=l;h.cx+=(q[0]-h.cx)*Math.min(1,simDt*2);h.cz+=(q[1]-h.cz)*Math.min(1,simDt*2);h.moving=true;}
-      else{if(h.moving&&!arrived&&!f.camp.path){}if(arrived){h.moving=false;f.camp.setCover(S.m);if(f===me)say('Новая стоянка. Чумы поставлены, стадо пасётся рядом.','good');}
-        h.moving=false;if(!h.gx||L.rnd()<simDt*.02){var a=L.rnd()*6.28,r=6+L.rnd()*7;var gx=f.camp.x+Math.cos(a)*r,gz=f.camp.z+Math.sin(a)*r;if(Wd.isLand(gx,gz)){h.gx=gx;h.gz=gz;}}
-        if(h.gx){h.cx+=(h.gx-h.cx)*Math.min(1,simDt*.15);h.cz+=(h.gz-h.cz)*Math.min(1,simDt*.15);}}
-      h.update(run?Math.min(dt*Math.max(1,S.speed*.6),.12):dt*.3,t);});
-    if(run)wolvesFrame(simDt);
-    L.wildUpdate(simDt||dt*.2,t,S.m,{x:cam.tx,y:0,z:cam.tz},herds);
+    fams.forEach(function(f){var c=f.camp,h=f.herd,arrived=c.update(dt,t,c.spd||12,h,2),pace=1;
+      if(c.path){var q=c.pointAt(c.prog-10);h.vx=q[0]-h.cx;h.vz=q[1]-h.cz;var l=Math.hypot(h.vx,h.vz)||1;h.vx/=l;h.vz/=l;h.cx+=(q[0]-h.cx)*Math.min(1,dt*3);h.cz+=(q[1]-h.cz)*Math.min(1,dt*3);h.moving=true;pace=clamp(c.spd/3.2,1,7);}
+      else{if(arrived){c.setCover(S.m);h.rush=2.5;h.gx=null;}
+        if(h.rush>0){h.rush-=dt;pace=3;}h.moving=h.rush>0;h.vx=h.vz=0;
+        if(!h.hold&&(!h.gx||L.rnd()<dt*.02)){var a=L.rnd()*6.28,r=6+L.rnd()*7,gx=c.x+Math.cos(a)*r,gz=c.z+Math.sin(a)*r;if(Wd.isLand(gx,gz)){h.gx=gx;h.gz=gz;}}
+        if(h.gx){var kk=Math.min(1,dt*(h.rush>0?1.6:.15));h.cx+=(h.gx-h.cx)*kk;h.cz+=(h.gz-h.cz)*kk;}}
+      h.update(dt*pace,t);});
+    L.wildUpdate(dt,t,S.m,{x:cam.tx,y:0,z:cam.tz},herds);
     L.markersUpdate(t,herds,myDeer);
-    // камера
-    keyCam(dt);
+    // камера: сама держит стойбище в кадре, пока игрок не увёл её
+    keyCam(dt);var kc=Math.min(1,dt*(calm?20:3.5));
     if(follow&&herds.some(function(h){return h.deer.indexOf(follow)>=0;})){cam.tx+=(follow.x-CX-cam.tx)*Math.min(1,dt*3);cam.tz+=(follow.z-CZ-cam.tz)*Math.min(1,dt*3);}
-    if(camGoal){var k2=Math.min(1,dt*(calm?20:3.5));cam.tx+=(camGoal.x-cam.tx)*k2;cam.tz+=(camGoal.z-cam.tz)*k2;cam.dist+=(camGoal.d-cam.dist)*k2;if(Math.hypot(camGoal.x-cam.tx,camGoal.z-cam.tz)<.5&&Math.abs(camGoal.d-cam.dist)<1)camGoal=null;}
-    cam.tx=clamp(cam.tx,-CX,CX);cam.tz=clamp(cam.tz,-CZ,CZ);applyCam();
-    Wd.update(dt,t,{x:cam.tx,y:Wd.groundAt(cam.tx+CX,cam.tz+CZ),z:cam.tz},S.storm?1:0);
+    else if(track){cam.tx+=((me.camp.x+me.herd.cx)/2-CX-cam.tx)*kc;cam.tz+=((me.camp.z+me.herd.cz)/2-CZ-cam.tz)*kc;}
+    if(camGoal){if(camGoal.x!=null){cam.tx+=(camGoal.x-cam.tx)*kc;cam.tz+=(camGoal.z-cam.tz)*kc;}cam.dist+=(camGoal.d-cam.dist)*kc;
+      if((camGoal.x==null||Math.hypot(camGoal.x-cam.tx,camGoal.z-cam.tz)<.5)&&Math.abs(camGoal.d-cam.dist)<1)camGoal=null;}
+    cam.tx=clamp(cam.tx,-CX,CX);cam.tz=clamp(cam.tz,-CZ,CZ);shiftView(dt);applyCam();
+    Wd.update(dt,t,{x:cam.tx,y:Wd.groundAt(cam.tx+CX,cam.tz+CZ),z:cam.tz},0);
     renderer.render(scene,camera);
     placeLabels();
-    uiAcc+=dt;if(uiAcc>.25){uiAcc=0;placeRing();emit('tick');renderTop();renderNext();drawMini();var na=0;herds.forEach(function(h){h.deer.forEach(function(d){if(d.adopted)na++;});});if(na!==lastAdopted){lastAdopted=na;syncDeerLabels();renderSide();}
-      if(shown&&!$('card').hidden&&!herds.some(function(h){return h.deer.indexOf(shown.d)>=0;}))$('card').hidden=true;}
+    uiAcc+=dt;if(uiAcc>.25){uiAcc=0;renderTop();if(!$('mini').hidden)drawMini();
+      if(shown&&!$('card').hidden&&!herds.some(function(h){return h.deer.indexOf(shown)>=0;}))$('card').hidden=true;}
     requestAnimationFrame(frame);}
   requestAnimationFrame(frame);
-  function scheduleDiff(){var cu=campU(),cal=uAt(S.m);return ((cal-cu+.5)%1+1)%1-.5;}
-  window.YH_GAME={S:S,fams:fams,herds:herds,cam:cam,lich:lich,day:day,flyTo:flyTo,me:me,say:say,termify:termify,uAt:uAt,loopPos:loopPos,campU:campU,scheduleDiff:scheduleDiff,pasture:pasture,openTab:openTab,getMyDeer:function(){return myDeer;},renderTop:renderTop,saveNow:saveNow,snapshot:snapshot,restore:restore,setSpeed:setSpeed,
-    ringScreen:function(){var v=calRing.position.clone().project(camera);if(v.z>1||Math.abs(v.x)>1||Math.abs(v.y)>1)return null;var r=renderer.domElement.getBoundingClientRect();return {x:r.left+(v.x+1)/2*r.width,y:r.top+(1-v.y)/2*r.height};},
-    focusRing:function(){follow=null;flyTo(calRing.position.x+CX,calRing.position.z+CZ,110);}};
-})();
-
-</script>
-<script>
-// Задания: год каслания по шагам. Сроки — в месяцах от начала игры (апрель первого года = 3).
-// Сезонное задание, которое не успели выполнить, переносится на следующий год.
-(function(){
-  var G=window.YH_GAME,Wd=window.YH_WORLD,D=window.YH_DATA;if(!G)return;
-  var S=G.S,me=G.me;
-  function $(id){return document.getElementById(id);}
-  function absT(){return (S.year-1)*12+S.m;}
-  function dateOf(t){var m=((t%12)+12)%12,mi=Math.floor(m),d=Math.min(30,Math.floor((m-mi)*30)+1);return d+' '+['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'][mi];}
-  function monthOf(t){return D.months[Math.floor(((t%12)+12)%12)];}
-  function dist(a,b,c,d){return Math.hypot(a-c,b-d);}
-  var st={moves:0,ice:0,swim:0,rail:0,wolvesOff:0,fox:0,foxCalv:0,seaDays:0,sawAdopted:0,sawWhite:0,gloss:0,kharp:0,town:null,crustAt:-1,crustEscaped:0,calvGuard:true,corralDiff:null,onTime:{},grow:null,points:0};
-
-  var Q=[
-    {id:'adopted',t:'Найдите Пургу',d:'Откройте вкладку «Опекаемые» и найдите оленя № 0427 или нажмите на любого оленя с жёлтой меткой.',pts:5,
-      ok:function(){return st.sawAdopted;},fact:'У каждого опекаемого оленя есть бирка с номером. А свои олени семьи узнают по надрезам на ушах: это ушные метки, знак хозяина.'},
-    {id:'gloss',t:'Словарь тундры',d:'Откройте «Словарь» в правом верхнем углу и посмотрите календарь каслания.',pts:5,
-      ok:function(){return st.gloss;},fact:'Каслание — перекочёвка стойбища вместе с оленями. На Ямале маршруты идут с юга на север и обратно.'},
-    {id:'move',t:'Первое каслание',d:'Нажмите «Каслать к следующей стоянке» или выберите место на карте.',pts:5,
-      ok:function(){return st.moves>=1;},fact:'Аргиш — караван из 6–8 связанных нарт. Ведут его обычно женщины и дети, впереди на лёгкой нарте едет мужчина.'},
-    {id:'north',t:'Весенний выход на север',d:'Уведите стадо с зимних пастбищ: пройдите по маршруту хотя бы до первой летней стоянки.',from:3,dead:4.5,pts:10,reward:{health:.05},
-      prog:function(){return Math.min(1,(G.campU()<.5?G.campU():0)/.1);},ok:function(){var u=G.campU();return u>=.1&&u<.5;},
-      fact:'Весной по насту стада идут быстро, до 30 км в день, и стоят на месте всего 1–3 дня.'},
-    {id:'ice',t:'Переправа по льду',d:'Перейдите реку, пока она подо льдом. Весной это нужно успеть до ледохода.',from:3,dead:5.3,pts:10,reward:{wood:15},
-      ok:function(){return st.ice>=1;},fact:'Переход по льду Обской губы длится до 10 часов: на льду лагерь не поставишь. Кто задержался, рискует попасть на тающий лёд.'},
-    {id:'calves',t:'Сберечь телят',d:'Весь отёл держите у стада не меньше двух пастухов и не отдайте ни одного оленёнка песцам. Нужно не меньше 25 телят.',from:4.3,dead:5.6,pts:15,reward:{health:.06},
-      prog:function(){return Math.min(1,S.born/25);},ok:function(){return st.calvGuard&&st.foxCalv===0&&S.born>=25;},atDead:true,
-      reset:function(){st.calvGuard=true;st.foxCalv=0;},fact:'Отёл идёт в мае и июне. Песцов на Ямале стало больше, и они нападают на телят.'},
-    {id:'swim',t:'Вплавь через реку',d:'Летом переведите стадо через реку, когда лёд уже сошёл.',from:5.3,dead:7,pts:10,reward:{food:15},
-      ok:function(){return st.swim>=1;},fact:'Реки и губы теперь всё чаще переходят по воде: лёд стал ненадёжным. Для новорождённых телят такая переправа опасна.'},
-    {id:'sea',t:'К морю от гнуса',d:'В июле продержите стадо у побережья (до 17 км от берега) не меньше 12 дней.',from:6,dead:7,pts:15,reward:{health:.08},
-      prog:function(){return Math.min(1,st.seaDays/12);},ok:function(){return st.seaDays>=12;},reset:function(){st.seaDays=0;},
-      fact:'У моря холодный ветер отгоняет комаров и оводов. В прибрежной полосе олени «здоровеют», как говорят оленеводы.'},
-    {id:'rail',t:'Переход у Бованенково',d:'Летом переведите стадо через железную дорогу Обская — Бованенково.',from:6,dead:8.3,pts:10,reward:{food:10},
-      ok:function(){return st.rail>=1;},fact:'На Бованенково для оленей устроены переходы: между рельсами кладут брусья, чтобы не ломались полозья нарт, а трубы поднимают аркой.'},
-    {id:'fish',t:'Рыбный запас',d:'Накопите 120 единиц еды. Рыбаки ловят лучше всего у рек и озёр летом.',pts:10,reward:{wood:10},
-      prog:function(){return Math.min(1,S.food/120);},ok:function(){return S.food>=120;},
-      fact:'Главная рыба Оби и Обской губы — сиговые: муксун, щокур, пыжьян, пелядь, нельма. Лов муксуна и нельмы сейчас ограничен.'},
-    {id:'town',t:'Фактория',d:'Поставьте стойбище рядом с посёлком (до 20 км), чтобы купить продукты и бензин.',pts:10,reward:{food:40,wood:20},
-      ok:function(){return !!st.town;},fact:'Фактория — торговый пункт в тундре. В посёлках оленеводы продают оленину и покупают муку, чай, бензин для снегоходов.'},
-    {id:'corral',t:'Кораль вовремя',d:'Придите к осеннему коралю (середина сентября), не отставая от календаря каслания больше чем на 45 км.',from:8,dead:8.5,pts:15,reward:{health:.05},atDead:true,
-      ok:function(){return st.corralDiff!==null&&Math.abs(st.corralDiff)<.045;},reset:function(){st.corralDiff=null;},
-      fact:'В корале телятам ставят ушные метки, а всё стадо прививают. Прививки обязательны после вспышки сибирской язвы в 2016 году, когда погибли 2350 оленей.'},
-    {id:'wood',t:'Дрова к полярной ночи',d:'Запасите 110 дров к 20 ноября.',from:9,dead:10.66,pts:15,reward:{health:.03},
-      prog:function(){return Math.min(1,S.wood/110);},ok:function(){return S.wood>=110;},
-      fact:'Тундра почти безлесна: дрова берут в лесотундре на юге или собирают ивняк по рекам. Зимой огонь в чуме горит круглые сутки.'},
-    {id:'wolves',t:'Волки не пройдут',d:'Трижды отгоните волков без потерь. Держите у стада двух пастухов и больше.',pts:15,reward:{food:10},
-      prog:function(){return Math.min(1,st.wolvesOff/3);},ok:function(){return st.wolvesOff>=3;},
-      fact:'Раньше пастухи отбивались от волков хореем: у этого шеста длиной 3–5 м есть железный наконечник.'},
-    {id:'crust',t:'Уйти от гололёда',d:'Если случится гололёд, за 10 дней уведите стадо с обледеневшего пастбища.',pts:15,reward:{health:.06},
-      ok:function(){return st.crustEscaped;},fact:'Дождь на снег, потом мороз: ягель уходит под корку льда. После гололёда в ноябре 2013 года на Ямале погибли десятки тысяч оленей.'},
-    {id:'white',t:'Белый олень',d:'Найдите в стаде белого оленя и откройте его карточку.',pts:5,
-      ok:function(){return st.sawWhite;},fact:'Белые олени встречаются редко и особо ценятся. Белый совик, меховую одежду поверх малицы, шьют из светлых шкур.'},
-    {id:'kharp',t:'Сияние над Харпом',d:'В полярную ночь (20 ноября — 20 января) найдите на карте посёлок Харп у Полярного Урала.',from:10.66,dead:12.66,pts:10,
-      ok:function(){return st.kharp;},fact:'«Харп» по-ненецки значит «северное сияние». Посёлок стоит у подножия Полярного Урала.'},
-    {id:'my',t:'Свой олень',d:'Заведите своего цифрового оленя во вкладке «Мой олень».',pts:5,
-      ok:function(){return !!G.getMyDeer();},fact:'Каждый опекун получает цифрового оленя. Он кочует со стадом весь год, и его всегда можно найти на карте.'},
-    {id:'lichen',t:'Сберечь ягель',d:'Доведите стадо до 1 марта сытым (сытость 55% и выше): не задерживайтесь на выбитых пастбищах.',from:11,dead:14,pts:20,reward:{health:.05},atDead:true,
-      prog:function(){return Math.min(1,me.herd.sat/.55);},ok:function(){return me.herd.sat>=.55;},
-      fact:'Ягель растёт всего на 1–6 мм в год. На юге Ямала его запасы с 1930-х годов сократились в 2–5 раз, пастбища перегружены в 2–3 раза.'},
-    {id:'year',t:'Год по календарю',d:'За год каслания хотя бы 8 месяцев идите по календарю (в середине месяца не дальше 45 км от отметки).',from:3,dead:15,pts:25,atDead:true,
-      prog:function(){return Math.min(1,countOnTime()/8);},ok:function(){return countOnTime()>=8;},reset:function(){st.onTime={};},
-      fact:'Бригады предприятий делают 80–120 перекочёвок в год: зимой стоят около месяца, весной по 1–3 дня, осенью по 3–5 дней.'},
-    {id:'grow',t:'Стадо растёт',d:'Закончите год каслания со стадом больше, чем было в начале.',from:3,dead:15.25,pts:20,atDead:true,
-      ok:function(){return st.grow&&st.grow.count>st.grow.start;},reset:function(){st.grow=null;},
-      fact:'Для центрального Ямала нормой считается 200–300 оленей на семью. Меньше 100 голов семья в тундре не прокормится.'}
-  ];
-  function countOnTime(){var n=0;for(var k in st.onTime)if(st.onTime[k])n++;return n;}
-  Q.forEach(function(q){q.status='open';q.tries=0;});
-
-  function rewardText(r){if(!r)return '';var a=[];if(r.food)a.push('+'+r.food+' еды');if(r.wood)a.push('+'+r.wood+' дров');if(r.health)a.push('здоровье стада +'+Math.round(r.health*100)+'%');return a.join(', ');}
-  function complete(q){q.status='done';st.points+=q.pts;var r=q.reward||{};if(r.food)S.food+=r.food;if(r.wood)S.wood+=r.wood;if(r.health)me.herd.health=Math.min(1,me.herd.health+r.health);
-    G.say('Задание выполнено: «'+q.t+'». '+(rewardText(r)?'Награда: '+rewardText(r)+'. ':'')+q.fact,'good');dirty=true;}
-  function fail(q){q.tries++;q.from+=12;q.dead+=12;if(q.reset)q.reset();G.say('Не успели: «'+q.t+'». Попробуйте в следующем году.','bad');dirty=true;}
-  function check(){var t=absT();Q.forEach(function(q){if(q.status==='done')return;if(q.from!=null&&t<q.from)return;
-      if(q.atDead){if(t>=q.dead){if(q.ok())complete(q);else fail(q);}return;}
-      if(q.ok())complete(q);else if(q.dead!=null&&t>=q.dead)fail(q);});}
-
-  window.YH_QUEST_HOOK=function(ev,data){var t=absT();
-    if(ev==='move'){st.moves++;if(data.river&&data.ice)st.ice++;if(data.river&&!data.ice)st.swim++;if(data.rail&&S.m>=5.8&&S.m<8.5)st.rail++;}
-    else if(ev==='wolves'){if(!data.lost)st.wolvesOff++;}
-    else if(ev==='fox'){st.fox++;if(S.m>=4.3&&S.m<5.6)st.foxCalv++;}
-    else if(ev==='card'){if(data.d.adopted&&!data.d.mine)st.sawAdopted=1;if(data.d.white)st.sawWhite=1;}
-    else if(ev==='gloss')st.gloss=1;
-    else if(ev==='crust')st.crustAt=S.dayN;
-    else if(ev==='corral')st.corralDiff=G.scheduleDiff();
-    else if(ev==='year')st.grow=data;
-    else if(ev==='day'){var h=me.herd,c=me.camp;
-      if(S.m>=4.3&&S.m<5.5&&S.jobs.guard<2)st.calvGuard=false;
-      if(Math.floor(S.m)===6&&Wd.seaDist(h.cx,h.cz)<=12)st.seaDays++;
-      if(!c.path)D.towns.forEach(function(tw){if(dist(c.x,c.z,tw.p[0],tw.p[1])<15)st.town=tw.ru;});
-      if(S.crust&&st.crustAt>=0&&S.dayN-st.crustAt<=10&&dist(h.cx,h.cz,S.crust.x,S.crust.z)>S.crust.r)st.crustEscaped=1;
-      var mf=S.m%1;if(mf>=.47&&mf<.5)st.onTime[Math.floor(t)]=Math.abs(G.scheduleDiff())<.045;}
-    else if(ev==='tick'){var tm=((t%12)+12)%12;if((tm>=10.66||tm<.66)){var k=D.towns.filter(function(x){return x.id==='kharp';})[0];if(k&&dist(G.cam.tx+Wd.CX,G.cam.tz+Wd.CZ,k.p[0],k.p[1])<30&&G.cam.dist<260)st.kharp=1;}}
-    if(ev==='day'||ev==='tick'||ev==='card'||ev==='gloss'||ev==='move'||ev==='wolves'||ev==='mydeer'||ev==='year'||ev==='corral')check();
-    if(ev==='tick')render();};
-
-  // ---------- интерфейс ----------
-  var dirty=true,lastSig='';
-  function prog(q){if(q.prog)return q.prog();return q.ok()?1:0;}
-  function item(q,mode){var p=Math.round(prog(q)*100),t=absT();
-    var when=mode==='later'?'с '+dateOf(q.from).replace(/^\d+ /,'')+' '+(q.from>=12*(S.year)?'следующего года':''):(q.dead!=null&&mode==='now'?'до '+dateOf(q.dead):'');
-    return '<div class="qi '+mode+'"><div class="qh"><b>'+q.t+'</b><span class="mono">'+(mode==='done'?'✓ '+q.pts:q.pts)+' оч.</span></div>'+
-      (mode==='done'?'<p class="qf">'+G.termify(q.fact)+'</p>':'<p>'+G.termify(q.d)+'</p>'+
-      (mode==='now'?'<div class="qbar"><i style="width:'+p+'%"></i></div>':'')+
-      '<p class="qm">'+[when,rewardText(q.reward)?'награда: '+rewardText(q.reward):'',q.tries?'попытка '+(q.tries+1):''].filter(Boolean).join(' · ')+'</p>')+'</div>';}
-  function lists(){var t=absT(),now=[],later=[],done=[];Q.forEach(function(q){if(q.status==='done')done.push(q);else if(q.from!=null&&t<q.from)later.push(q);else now.push(q);});
-    now.sort(function(a,b){return (a.dead==null?1e9:a.dead)-(b.dead==null?1e9:b.dead);});later.sort(function(a,b){return a.from-b.from;});return {now:now,later:later,done:done};}
-  function render(){var L=lists(),sig=L.now.map(function(q){return q.id+Math.round(prog(q)*20);}).join()+'|'+L.later.length+'|'+L.done.length+'|'+Math.floor(absT());
-    var top=L.now[0];
-    $('qnow').innerHTML=top?'<span class="mono">Задание</span><b>'+top.t+'</b> · '+Math.round(prog(top)*100)+'%'+(top.dead!=null?' · до '+dateOf(top.dead):''):'<span class="mono">Задания</span>Все текущие задания выполнены.';
-    if(sig===lastSig&&!dirty)return;lastSig=sig;dirty=false;
-    $('tb-q').innerHTML='<p class="qscore"><b>'+st.points+'</b> очков кочевника · выполнено '+L.done.length+' из '+Q.length+'</p>'+
-      (L.now.length?'<h3>Сейчас</h3>'+L.now.map(function(q){return item(q,'now');}).join(''):'')+
-      (L.later.length?'<h3>Впереди</h3>'+L.later.map(function(q){return item(q,'later');}).join(''):'')+
-      (L.done.length?'<details class="qdone"><summary>Выполнено · '+L.done.length+'</summary>'+L.done.map(function(q){return item(q,'done');}).join('')+'</details>':'');}
-  $('qnow').addEventListener('click',function(){G.openTab('q');});
-  render();
-  function exportState(){return {st:JSON.parse(JSON.stringify(st)),q:Q.map(function(q){return {id:q.id,status:q.status,from:q.from,dead:q.dead,tries:q.tries};})};}
-  function importState(o){if(!o)return;for(var k in o.st)st[k]=o.st[k];(o.q||[]).forEach(function(x){Q.forEach(function(q){if(q.id===x.id){q.status=x.status;q.from=x.from;q.dead=x.dead;q.tries=x.tries||0;}});});dirty=true;lastSig='';render();}
-  window.YH_QUESTS={Q:Q,st:st,check:check,render:render,exportState:exportState,importState:importState};
-})();
-
-</script>
-<script>
-// Как играть: полная инструкция и пошаговое обучение с подсветкой элементов экрана.
-(function(){
-  var G=window.YH_GAME,Wd=window.YH_WORLD;if(!G)return;
-  function $(id){return document.getElementById(id);}
-  function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
-
-  // ---------- инструкция ----------
-  var GUIDE=
-  '<h3>Цель</h3>'+
-  '<p>Провести стойбище семьи Худи через год каслания. Весной увести стадо из леса за Обью на север, к Карскому морю, осенью вернуть обратно. Стадо должно оставаться сытым и здоровым, а семья — с едой и дровами. Хороший год — когда стадо к весне больше, чем было. Что делать в каждый месяц, подсказывают задания.</p>'+
-  '<h3>Первые пять минут</h3><ol>'+
-  '<li>Нажмите <b>«Каслать к следующей стоянке»</b> в панели слева. Чумы разберут, аргиш пойдёт на север.</li>'+
-  '<li>Включите скорость <b>3×</b> вверху справа.</li>'+
-  '<li>Смотрите на жёлтую плашку <b>«Задание»</b> в панели стойбища и делайте то, что там написано.</li>'+
-  '<li>Когда стойбище встало на новом месте, прочитайте строку под кнопками. Если там «пора каслать» — снова нажмите «Каслать».</li>'+
-  '<li>В мае, на отёле, поставьте не меньше двух пастухов.</li></ol>'+
-  '<h3>Что на экране</h3><ul>'+
-  '<li><b>Вверху:</b> месяц и время года; запасы: стадо (взрослые + телята), сытость стада, здоровье, еда, дрова, тепло в чуме. Красная цифра — беда. Справа скорость времени, «Словарь» и «Как играть».</li>'+
-  '<li><b>Слева, стойбище:</b> текущее задание, кто чем занят, кнопки каслания, отстаёте ли вы от календаря, совет на этот месяц.</li>'+
-  '<li><b>Справа:</b> все задания, семьи и их маршруты, опекаемые олени, ваш цифровой олень.</li>'+
-  '<li><b>Внизу:</b> слева события, справа мини-карта. Нажмите на мини-карту, чтобы перелететь. Кнопка «Ягель» покажет, где пастбища выбиты (красным).</li>'+
-  '<li><b>На карте:</b> жёлтый пунктир — годовой маршрут семьи; жёлтое кольцо «по календарю каслания» — где стаду положено быть сейчас; жёлтые метки над оленями — опекаемые; красная — ваш олень.</li></ul>'+
-  '<h3>Управление</h3><ul>'+
-  '<li><b>Мышь:</b> тянуть левой кнопкой — двигать карту; колесо — ближе и дальше; правая кнопка или Shift — повернуть и наклонить. Щелчок по оленю открывает его карточку.</li>'+
-  '<li><b>Телефон:</b> один палец двигает карту, двумя пальцами — масштаб и поворот. Панели открываются кнопками внизу.</li>'+
-  '<li><b>Клавиатура:</b> WASD или стрелки — двигать, Q и E — поворот, + и − — масштаб, пробел — пауза.</li></ul>'+
-  '<h3>Как кочевать</h3><ul>'+
-  '<li><b>«Каслать к следующей стоянке»</b> — стойбище идёт по маршруту семьи. Зимой, когда спешить некуда, кнопка уводит на соседнее нетронутое пастбище.</li>'+
-  '<li><b>«Выбрать место на карте»</b> — нажмите кнопку, потом место на суше не дальше 170 км. По морю идти нельзя.</li>'+
-  '<li>Под кнопками видно, отстаёте ли вы от календаря и сколько ягеля вокруг. Ягеля меньше 40% — пора уходить: он растёт всего на несколько миллиметров в год.</li>'+
-  '<li>Главное правило: держитесь рядом с жёлтым кольцом.</li></ul>'+
-  '<h3>Люди стойбища</h3><p>В стойбище 7 человек, плюсом и минусом распределите их по делам.</p><ul>'+
-  '<li><b>Пастухи</b> берегут стадо. Нужны двое и больше зимой (волки) и в отёл (песцы).</li>'+
-  '<li><b>Рыбаки</b> добывают еду. Лучше всего у рек и озёр летом, подо льдом хуже, в пути не ловят.</li>'+
-  '<li><b>Дрова:</b> в лесотундре на юге их много, в тундре только ивняк. Зимой дров уходит больше.</li>'+
-  '<li><b>В чуме</b> держат огонь, дров уходит меньше.</li></ul>'+
-  '<p>Кончилась еда — семья берёт оленя из стада на мясо. Кончились дрова — в чуме холодно. Опекаемых оленей это не касается.</p>'+
-  '<h3>Год по месяцам</h3><div style="overflow-x:auto"><table class="cal"><tbody>'+
-  '<tr><td>Апрель</td><td>По льду через Обь у Яр-Сале, быстро на север.</td></tr>'+
-  '<tr><td>Май</td><td>Отёл. Два и больше пастуха у стада, идите медленно.</td></tr>'+
-  '<tr><td>Июнь</td><td>Реки вскрылись, олени переходят их вплавь.</td></tr>'+
-  '<tr><td>Июль</td><td>Гнус. Ведите стадо к морю, к устью Мордыяхи.</td></tr>'+
-  '<tr><td>Август</td><td>Обратно на юг через Бованенково.</td></tr>'+
-  '<tr><td>Сентябрь</td><td>Кораль: придите вовремя, по календарю.</td></tr>'+
-  '<tr><td>Октябрь</td><td>Запасайте дрова и рыбу.</td></tr>'+
-  '<tr><td>Ноябрь</td><td>Гололёд и убойная кампания. Уходите с обледеневших пастбищ.</td></tr>'+
-  '<tr><td>Декабрь — март</td><td>Зимние пастбища в лесу. Примерно раз в месяц переходите на свежий ягель.</td></tr>'+
-  '</tbody></table></div>'+
-  '<h3>Опасности</h3><ul>'+
-  '<li><b>Волки</b> зимой: держите у стада двух пастухов и больше.</li>'+
-  '<li><b>Гололёд:</b> ягель подо льдом. За 10 дней уведите стадо на другое пастбище.</li>'+
-  '<li><b>Пурга:</b> аргиш почти стоит, переждите.</li>'+
-  '<li><b>Гнус</b> в июле: вдали от моря олени худеют.</li>'+
-  '<li><b>Перевыпас:</b> на одном месте ягель кончается, стадо голодает и слабеет.</li></ul>'+
-  '<h3>Цифровой олень</h3><p>Вкладка «Мой олень»: впишите своё имя и получите оленя. Или щёлкните по оленю в стаде и нажмите «Сделать своим цифровым оленем». Опекун с сайта найдёт своего оленя во вкладке «Опекаемые» по номеру бирки, например 0427.</p>'+
-  '<h3>Сохранение</h3><p>Игра сама сохраняется в этом браузере раз в игровой месяц и при закрытии вкладки. При следующем открытии нажмите «Продолжить».</p>';
-
-  var dlg=document.createElement('div');dlg.className='modal';dlg.id='help';dlg.hidden=true;
-  dlg.innerHTML='<div class="dlg" style="width:min(46rem,100%)"><div class="fam-head"><h2>Как играть</h2><button type="button" class="x" id="h-close" aria-label="Закрыть">✕</button></div>'+
-    '<div class="guide">'+GUIDE+'</div><div class="acts" style="flex-direction:row;flex-wrap:wrap"><button type="button" class="btn" id="h-tour">Пройти обучение по экрану</button><button type="button" class="btn q" id="h-ok">Понятно</button></div></div>';
-  document.body.appendChild(dlg);
-  var wasSpeed=1;
-  function openHelp(){wasSpeed=G.S.speed;G.setSpeed(0);dlg.hidden=false;}
-  function closeHelp(){dlg.hidden=true;G.setSpeed(wasSpeed||1);}
-  $('b-help').onclick=openHelp;$('h-close').onclick=closeHelp;$('h-ok').onclick=closeHelp;
-  dlg.addEventListener('click',function(e){if(e.target===dlg)closeHelp();});
-  $('h-tour').onclick=function(){dlg.hidden=true;startTour();};
-
-  // ---------- пошаговое обучение ----------
-  var STEPS=[
-    {t:'Добро пожаловать',d:'Вы ведёте стойбище семьи Худи. Цель — провести стадо через год каслания: весной на север к Карскому морю, осенью обратно. Покажу за минуту, где что. Игра пока на паузе.'},
-    {el:'stocks',t:'Запасы',d:'Стадо, сытость, здоровье, еда, дрова и тепло в чуме. Если цифра стала красной, займитесь этим в первую очередь.'},
-    {sel:'.speed',t:'Время',d:'Пауза, 1×, 3× и 8×. На 1× месяц идёт около 40 секунд. Пробел ставит паузу.'},
-    {el:'qnow',panel:'camp',t:'Текущее задание',d:'Самое срочное задание. Делайте задания по порядку: они ведут через весь год. Нажмите плашку, чтобы открыть весь список.'},
-    {el:'jobs',panel:'camp',t:'Люди стойбища',d:'Кнопками − и + распределите 7 человек по делам. Совет: зимой и в мае держите у стада двух пастухов и больше.'},
-    {el:'a-next',panel:'camp',t:'Главная кнопка',d:'«Каслать к следующей стоянке»: чумы разберут, и аргиш пойдёт по маршруту семьи. Нажимайте её каждый раз, когда стойбище встало и строка ниже говорит, что пора.'},
-    {el:'next',panel:'camp',t:'Отстаёте или нет',d:'Здесь видно, на сколько километров вы отстали от календаря и сколько ягеля вокруг. Ягеля меньше 40% — уходите.'},
-    {ring:true,t:'Жёлтое кольцо',d:'Кольцо «по календарю каслания» показывает, где стаду положено быть сейчас. Жёлтый пунктир — годовой маршрут семьи. Держитесь рядом с кольцом.'},
-    {el:'side',panel:'side',t:'Задания, семьи, олени',d:'Справа все задания, четыре семьи с их тундрами, опекаемые олени и ваш цифровой олень.'},
-    {el:'mini',panel:'mini',t:'Мини-карта',d:'Нажмите на неё, чтобы перелететь в любое место Ямала. Кнопка «Ягель» покажет выбитые пастбища.'},
-    {el:'b-help',t:'Инструкция всегда здесь',d:'Полное описание игры — под кнопкой «Как играть». Удачного каслания! Начните с кнопки «Каслать к следующей стоянке».'}
-  ];
-  var hole=document.createElement('div');hole.id='tour-hole';hole.hidden=true;document.body.appendChild(hole);
-  var card=document.createElement('div');card.id='tour-card';card.className='pnl';card.hidden=true;card.setAttribute('role','dialog');card.setAttribute('aria-live','polite');document.body.appendChild(card);
-  var step=-1,tourSpeed=1,raf=0;
-  function mobile(){return window.innerWidth<=760;}
-  function openPanel(p){if(!mobile()||!p)return;var el=$(p);if(el&&!el.classList.contains('open')){var b=$('mn-'+p);if(b)b.click();}}
-  function target(s){if(s.ring){var r=G.ringScreen();return r?{left:r.x-34,top:r.y-34,width:68,height:68}:null;}
-    var el=s.el?$(s.el):(s.sel?document.querySelector(s.sel):null);if(!el)return null;var b=el.getBoundingClientRect();if(!b.width||!b.height)return null;return {left:b.left,top:b.top,width:b.width,height:b.height};}
-  function place(){if(step<0)return;var s=STEPS[step],r=target(s),pad=6,vw=window.innerWidth,vh=window.innerHeight;
-    if(r){hole.hidden=false;hole.style.left=(r.left-pad)+'px';hole.style.top=(r.top-pad)+'px';hole.style.width=(r.width+pad*2)+'px';hole.style.height=(r.height+pad*2)+'px';}
-    else{hole.hidden=false;hole.style.left=(vw/2)+'px';hole.style.top=(vh/2)+'px';hole.style.width='0px';hole.style.height='0px';}
-    var cw=card.offsetWidth,ch=card.offsetHeight,x,y;
-    if(r){x=r.left+r.width/2-cw/2;y=r.top+r.height+pad+12;if(y+ch>vh-12)y=r.top-pad-12-ch;if(y<12){y=r.top+r.height/2-ch/2;x=r.left+r.width+pad+12;if(x+cw>vw-12)x=r.left-pad-12-cw;}}
-    else{x=vw/2-cw/2;y=vh/2-ch/2;}
-    card.style.left=Math.max(12,Math.min(vw-cw-12,x))+'px';card.style.top=Math.max(12,Math.min(vh-ch-12,y))+'px';}
-  function loop(){place();raf=requestAnimationFrame(loop);}
-  function show(i){step=i;var s=STEPS[i];openPanel(s.panel);if(s.ring&&G.focusRing)G.focusRing();
-    card.innerHTML='<span class="mono">Обучение · '+(i+1)+' из '+STEPS.length+'</span><h3>'+s.t+'</h3><p>'+s.d+'</p>'+
-      '<div class="tour-acts"><button type="button" class="linkbtn" id="tour-skip">Пропустить</button><span>'+(i?'<button type="button" class="btn q" id="tour-back">Назад</button> ':'')+
-      '<button type="button" class="btn" id="tour-next">'+(i===STEPS.length-1?'Начать игру':'Далее')+'</button></span></div>';
-    card.hidden=false;$('tour-next').onclick=function(){if(step<STEPS.length-1)show(step+1);else endTour();};
-    var bk=$('tour-back');if(bk)bk.onclick=function(){show(step-1);};$('tour-skip').onclick=endTour;
-    $('tour-next').focus();place();}
-  function startTour(){tourSpeed=G.S.speed||1;G.setSpeed(0);cancelAnimationFrame(raf);show(0);loop();}
-  function endTour(){step=-1;card.hidden=true;hole.hidden=true;cancelAnimationFrame(raf);store('yh-tundra-tour','1');G.setSpeed(tourSpeed||1);if(mobile()){var c=$('camp');if(c&&!c.classList.contains('open'))$('mn-camp').click();}}
-  window.addEventListener('keydown',function(e){if(step<0)return;if(e.key==='Escape')endTour();else if(e.key==='ArrowRight'||e.key==='Enter'){e.preventDefault();e.stopPropagation();$('tour-next').click();}},true);
-
-  window.YH_HELP={open:openHelp,tour:startTour,onStart:function(fresh){if(fresh&&!store('yh-tundra-tour'))startTour();}};
+  window.YH_GAME={S:S,TASKS:TASKS,me:me,fams:fams,cam:cam};
 })();
 
 </script>
